@@ -1,0 +1,652 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>916</width>
+    <height>713</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QComboBox" name="comboBoxPorts">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>580</y>
+      <width>151</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButtonConnect">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>610</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Połącz</string>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBoxMeasurements">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>151</width>
+      <height>561</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Pomiary</string>
+    </property>
+    <widget class="QRadioButton" name="radioButtonEMGMeasure">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>EMG</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButtonBIOZMeasure">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>240</y>
+       <width>82</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>BIO Z</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxEMGGAIN">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>20 V/V</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>40 V/V</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>80 V/V</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>160 V/V</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Wzmocnienie</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Filtr DP</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxEMGLPF">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>BYPASS</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>40 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>100 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>150 Hz</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Filtr GP</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxEMGHPF">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>BYPASS</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>0.5 Hz</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>190</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Odczyt</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxEMGRATE">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>210</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Powolny</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Normalny</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Szybki</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>260</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Prąd wzbudzenia</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxBIOZCURRMAG">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>280</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>OFF</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>8 uA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>16 uA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>32 uA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>48 uA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>64 uA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>80 uA</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>96 uA</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>310</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Częstotliwość wzbudzenia</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxBIOZCURRFREQ">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>330</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>128 kHz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>80 kHz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>40 kHz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>10 kHz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>8 kHz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>4 kHz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>2 kHz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>1 kHz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>500 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>250 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>125 Hz</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>360</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Filtr DP</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxBIOZHPF">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>430</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>BYPASS</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>125 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>300 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>800 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>2000 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>3700 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>7200 Hz</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>410</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Filtr GP</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxBIOZLPF">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>380</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>BYPASS</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>4 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>8 Hz</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>16 Hz</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_9">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>460</y>
+       <width>131</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Wzmocnienie</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxBIOZGAIN">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>480</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>10 V/V</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>20 V/V</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>40 V/V</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>80 V/V</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="label_10">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>510</y>
+       <width>121</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Odczyt</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="comboBoxBIOZGAIN_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>530</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Szybki</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Powolny</string>
+      </property>
+     </item>
+    </widget>
+   </widget>
+   <widget class="QChartView" name="Graph" native="true">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>10</y>
+      <width>731</width>
+      <height>621</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>640</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ustaw</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_2">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>640</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start pomiaru</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_3">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>640</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Stop pomiaru</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_4">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>640</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Zapisz CSV</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="statusBar">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>640</y>
+      <width>521</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>STATUS</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>916</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QWidget</extends>
+   <header>PyQt5.QtChart</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
