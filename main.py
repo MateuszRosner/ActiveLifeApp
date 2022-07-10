@@ -1,5 +1,7 @@
 from pickle import NONE
+from random import random
 from select import select
+import string
 import sys
 import time
 import datetime
@@ -24,6 +26,11 @@ class MyWindow(Ui_MainWindow):
             stopbits=serial.STOPBITS_ONE,
             bytesize=serial.EIGHTBITS,
             timeout=0.5)
+        
+        self.graphTimer = QtCore.QTimer()
+
+        self.maxValue = 0.0
+        self.minValue = 0.0
 
         # --------------- chart settings ---------------
         self.chartData = QChart()
@@ -49,12 +56,14 @@ class MyWindow(Ui_MainWindow):
 
         self.Graph.setChart(self.chartData)
 
-        self.create_linechart()
-
 
     # --------------- signals - slots config ---------------
         self.pushButtonConnect.clicked.connect(self.openPort)
-
+        self.pushButtonStart.clicked.connect(self.startMeasurement)
+        self.pushButtonStop.clicked.connect(self.stopMeasurement)
+        self.pushButtonClearGraph.clicked.connect(self.clearGraph)
+        self.pushButtonSave.clicked.connect(self.saveFile)
+        self.graphTimer.timeout.connect(self.create_linechart)
 
 
     def openPort(self):
@@ -79,22 +88,42 @@ class MyWindow(Ui_MainWindow):
     def setActualSettings(self):
         pass
 
-    def clearGraph(self):
-        pass
-
     def create_linechart(self):
         timenow = QtCore.QDateTime.currentDateTime()
+        value = random() * 100 - 50
 
         if self.maxData.count() == 0:
             self.axis_x.setMin(timenow)
 
-        self.maxData.append(timenow.toMSecsSinceEpoch(), 10)
+        self.maxData.append(timenow.toMSecsSinceEpoch(), value)
         self.axis_x.setMax(timenow)
 
-        self.axis_y.setMax(self.axis_y.max())
+        if value < self.minValue:
+            self.minValue = value
+        if value > self.maxValue:
+            self.maxValue = value
+
+        self.axis_y.setMax(self.maxValue)
+        self.axis_y.setMin(self.minValue)
 
     def clearGraph(self):
         self.maxData.clear()
+
+    def startMeasurement(self):
+        self.graphTimer.start(100)
+
+    def stopMeasurement(self):
+        self.graphTimer.stop()
+
+    def saveFile(self):
+        filter = ("Coma separated files (*.csv)")
+        dlg = QtWidgets.QFileDialog()
+        dlg.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        dlg.setNameFilters([filter])
+        filenames = QtCore.QStringListModel()
+
+        if dlg.exec_():
+            filenames = dlg.selectedFiles()
 
 
 if __name__ == "__main__":
