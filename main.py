@@ -1,12 +1,14 @@
 from pickle import NONE
 from random import random
 from select import select
+import threading
 import string
 import sys
 import time
 import datetime
 import serial
 import serial.tools.list_ports
+import csv
 
 from ui import Ui_MainWindow
 from PyQt5 import QtCore, QtWidgets
@@ -26,11 +28,17 @@ class MyWindow(Ui_MainWindow):
             stopbits=serial.STOPBITS_ONE,
             bytesize=serial.EIGHTBITS,
             timeout=0.5)
+
+        self.serThreadRdy = False
         
+        self.serialThread = threading.Thread(target=self.getDataFromSerial)
+        self.serialThread.daemon = True
+
         self.graphTimer = QtCore.QTimer()
 
         self.maxValue = 0.0
         self.minValue = 0.0
+        self.rawData = []
 
         # --------------- chart settings ---------------
         self.chartData = QChart()
@@ -56,7 +64,6 @@ class MyWindow(Ui_MainWindow):
 
         self.Graph.setChart(self.chartData)
 
-
     # --------------- signals - slots config ---------------
         self.pushButtonConnect.clicked.connect(self.openPort)
         self.pushButtonStart.clicked.connect(self.startMeasurement)
@@ -75,6 +82,7 @@ class MyWindow(Ui_MainWindow):
             except:
                 print("[ERROR] Can't open serial port...")
 
+
     def listSerialPorts(self):
         ports = serial.tools.list_ports.comports()
 
@@ -82,19 +90,36 @@ class MyWindow(Ui_MainWindow):
                 print("{}: {}".format(port, desc))
                 self.comboBoxPorts.addItem(port+" "+desc)
 
+
     def getActualSettings(self):
         pass
+
 
     def setActualSettings(self):
         pass
 
+
     def create_linechart(self):
+        str : recData 
+        value = 0.0
+
+        self.ser.flushInput()
+        if self.ser.isOpen() == True:
+            while True:
+                recData = self.ser.readline().decode('utf-8')
+                try:
+                    value = float(recData.split(',')[1])
+                    print(value)
+                    break
+                except:
+                    print("corrupted data")
+
         timenow = QtCore.QDateTime.currentDateTime()
-        value = random() * 100 - 50
 
         if self.maxData.count() == 0:
             self.axis_x.setMin(timenow)
 
+        self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
         self.maxData.append(timenow.toMSecsSinceEpoch(), value)
         self.axis_x.setMax(timenow)
 
@@ -106,14 +131,31 @@ class MyWindow(Ui_MainWindow):
         self.axis_y.setMax(self.maxValue)
         self.axis_y.setMin(self.minValue)
 
+
     def clearGraph(self):
         self.maxData.clear()
+        self.rawData.clear()
+        self.minValue = 0
+        self.maxValue = 0
+
 
     def startMeasurement(self):
-        self.graphTimer.start(100)
+        """ if self.serThreadRdy == False:
+            self.serThreadRdy = True
+            self.serialThread.start()"""
+            
+        self.graphTimer.start(0.05)
+
 
     def stopMeasurement(self):
+        self.serThreadRdy = False
         self.graphTimer.stop()
+
+
+    def getDataFromSerial(self):
+        pass
+            
+
 
     def saveFile(self):
         filter = ("Coma separated files (*.csv)")
@@ -124,6 +166,15 @@ class MyWindow(Ui_MainWindow):
 
         if dlg.exec_():
             filenames = dlg.selectedFiles()
+        
+        with open(filenames[0], 'w', encoding='UTF8', newline='') as f:
+            writer = csv.writer(f)
+
+            print(len(self.rawData))
+            #for item in self.rawData:
+            writer.writerows(self.rawData)
+
+        print("CSV saved")
 
 
 if __name__ == "__main__":
