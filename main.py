@@ -144,7 +144,7 @@ class MyWindow(Ui_MainWindow):
             self.serThreadRdy = True
             self.serialThread.start()"""
             
-        self.graphTimer.start(0.05)
+        self.graphTimer.start(1)
 
 
     def stopMeasurement(self):
