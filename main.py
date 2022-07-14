@@ -139,11 +139,7 @@ class MyWindow(Ui_MainWindow):
         self.maxValue = 0
 
 
-    def startMeasurement(self):
-        """ if self.serThreadRdy == False:
-            self.serThreadRdy = True
-            self.serialThread.start()"""
-            
+    def startMeasurement(self):            
         self.graphTimer.start(1)
 
 
@@ -155,7 +151,6 @@ class MyWindow(Ui_MainWindow):
     def getDataFromSerial(self):
         pass
             
-
 
     def saveFile(self):
         filter = ("Coma separated files (*.csv)")
