@@ -164,9 +164,6 @@ class MyWindow(Ui_MainWindow):
         
         with open(filenames[0], 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f)
-
-            print(len(self.rawData))
-            #for item in self.rawData:
             writer.writerows(self.rawData)
 
         print("CSV saved")
