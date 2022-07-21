@@ -79,6 +79,7 @@ class MyWindow(Ui_MainWindow):
             print(self.comboBoxPorts.currentText().split(" ")[0])
             try:
                 self.ser.open()
+                self.ser.flush()
             except:
                 print("[ERROR] Can't open serial port...")
 
@@ -106,13 +107,14 @@ class MyWindow(Ui_MainWindow):
         self.ser.flushInput()
         if self.ser.isOpen() == True:
             while True:
-                recData = self.ser.readline().decode('utf-8')
                 try:
-                    value = float(recData.split(',')[1])
+                    recData = self.ser.readline().decode('utf-8')
+                    value = float(recData.split('#')[1])
                     print(value)
                     break
                 except:
                     print("corrupted data")
+                    self.ser.flushInput()
 
         timenow = QtCore.QDateTime.currentDateTime()
 
