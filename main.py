@@ -9,6 +9,7 @@ import datetime
 import serial
 import serial.tools.list_ports
 import csv
+import max_setup
 
 from ui import Ui_MainWindow
 from PyQt5 import QtCore, QtWidgets
@@ -64,13 +65,30 @@ class MyWindow(Ui_MainWindow):
 
         self.Graph.setChart(self.chartData)
 
+        self.max30001 = max_setup.max30001()
+        self.updateBIOZSettings()
+        self.updateECGSettings()
+
     # --------------- signals - slots config ---------------
         self.pushButtonConnect.clicked.connect(self.openPort)
         self.pushButtonStart.clicked.connect(self.startMeasurement)
         self.pushButtonStop.clicked.connect(self.stopMeasurement)
         self.pushButtonClearGraph.clicked.connect(self.clearGraph)
         self.pushButtonSave.clicked.connect(self.saveFile)
+        self.pushButtonSet.clicked.connect(self.setActualSettings)
         self.graphTimer.timeout.connect(self.create_linechart)
+        self.comboBoxEMGGAIN.currentTextChanged.connect(self.updateECGSettings)
+        self.comboBoxEMGLPF.currentTextChanged.connect(self.updateECGSettings)
+        self.comboBoxEMGHPF.currentTextChanged.connect(self.updateECGSettings)
+        self.comboBoxEMGRATE.currentTextChanged.connect(self.updateECGSettings)
+        self.comboBoxBIOZCURRMAG.currentTextChanged.connect(self.updateBIOZSettings)
+        self.comboBoxBIOZCURRFREQ.currentTextChanged.connect(self.updateBIOZSettings)
+        self.comboBoxBIOZHPF.currentTextChanged.connect(self.updateBIOZSettings)
+        self.comboBoxBIOZLPF.currentTextChanged.connect(self.updateBIOZSettings)
+        self.comboBoxBIOZGAIN.currentTextChanged.connect(self.updateBIOZSettings)
+        self.comboBoxBIOZRATE.currentTextChanged.connect(self.updateBIOZSettings)
+        self.radioButtonBIOZMeasure.clicked.connect(self.updateMeasureType)
+        self.radioButtonEMGMeasure.clicked.connect(self.updateMeasureType)
 
 
     def openPort(self):
@@ -97,7 +115,8 @@ class MyWindow(Ui_MainWindow):
 
 
     def setActualSettings(self):
-        pass
+        if self.ser.isOpen():
+            self.ser.write(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'))
 
 
     def create_linechart(self):
@@ -113,8 +132,9 @@ class MyWindow(Ui_MainWindow):
                     print(value)
                     break
                 except:
-                    print("corrupted data")
+                    print("corrupted data...")
                     self.ser.flushInput()
+                    break
 
         timenow = QtCore.QDateTime.currentDateTime()
 
@@ -152,7 +172,37 @@ class MyWindow(Ui_MainWindow):
 
     def getDataFromSerial(self):
         pass
-            
+
+
+    def updateECGSettings(self):
+        
+        self.max30001.ecg.gain = max_setup.ECG_GAIN_t(self.comboBoxEMGGAIN.currentIndex()+1)
+        self.max30001.ecg.lpf = max_setup.ECG_LPF_t(self.comboBoxEMGLPF.currentIndex()+1)
+        self.max30001.ecg.hpf = max_setup.ECG_HPF_t(self.comboBoxEMGHPF.currentIndex()+1)
+        self.max30001.ecg.rate = max_setup.ECG_RATE_t(self.comboBoxEMGRATE.currentIndex()+1)
+        print(self.max30001.ecg)
+        
+
+    def updateBIOZSettings(self):
+        self.max30001.bioz.inductionCurrent = max_setup.InductionCurrent_t(self.comboBoxBIOZCURRMAG.currentIndex()+1)
+        self.max30001.bioz.inductionFreq = max_setup.InductionFreq_t(self.comboBoxBIOZCURRFREQ.currentIndex()+1)
+        self.max30001.bioz.hpf = max_setup.BIOZ_HPF_t(self.comboBoxBIOZHPF.currentIndex()+1)
+        self.max30001.bioz.lpf = max_setup.BIOZ_LPF_t(self.comboBoxBIOZLPF.currentIndex()+1)
+        self.max30001.bioz.gain = max_setup.BIOZ_GAIN_t(self.comboBoxBIOZGAIN.currentIndex()+1)
+        self.max30001.bioz.rate = max_setup.BIOZ_RATE_t(self.comboBoxBIOZRATE.currentIndex()+1)
+        print(self.max30001.bioz)
+
+
+    def updateMeasureType(self):
+        if self.radioButtonEMGMeasure.isChecked():
+            self.max30001.measurement_type = max_setup.Measurement_t.ECG
+        elif self.radioButtonBIOZMeasure.isChecked():
+            self.max30001.measurement_type = max_setup.Measurement_t.BIOZ
+        else:
+            self.max30001.measurement_type = max_setup.Measurement_t.UNDEFINED
+
+        print(self.max30001.measurement_type)
+
 
     def saveFile(self):
         filter = ("Coma separated files (*.csv)")

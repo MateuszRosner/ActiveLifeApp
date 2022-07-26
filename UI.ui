@@ -383,10 +383,10 @@
       </rect>
      </property>
      <property name="text">
-      <string>Filtr DP</string>
+      <string>Filtr GP</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBoxBIOZHPF">
+    <widget class="QComboBox" name="comboBoxBIOZLPF">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -441,10 +441,10 @@
       </rect>
      </property>
      <property name="text">
-      <string>Filtr GP</string>
+      <string>Filtr DP</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBoxBIOZLPF">
+    <widget class="QComboBox" name="comboBoxBIOZHPF">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -530,7 +530,7 @@
       <string>Odczyt</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBoxBIOZGAIN_2">
+    <widget class="QComboBox" name="comboBoxBIOZRATE">
      <property name="geometry">
       <rect>
        <x>10</x>
