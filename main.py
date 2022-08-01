@@ -140,6 +140,8 @@ class MyWindow(Ui_MainWindow):
 
         if self.maxData.count() == 0:
             self.axis_x.setMin(timenow)
+            self.minValue = value
+            self.maxValue = value
 
         self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
         self.maxData.append(timenow.toMSecsSinceEpoch(), value)
