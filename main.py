@@ -136,7 +136,7 @@ class MyWindow(Ui_MainWindow):
                     self.ser.flushInput()
                     return
 
-        if (value > 200) or (value < -200):
+        if (value > 300) or (value < -300):
             print("[INFO] overlimit...")
             return
 
