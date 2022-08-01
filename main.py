@@ -136,6 +136,10 @@ class MyWindow(Ui_MainWindow):
                     self.ser.flushInput()
                     return
 
+        if (value > 200) or(value < -200):
+            print("[INFO] overlimit...")
+            return
+
         timenow = QtCore.QDateTime.currentDateTime()
 
         if self.maxData.count() == 0:
