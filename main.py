@@ -37,33 +37,67 @@ class MyWindow(Ui_MainWindow):
 
         self.graphTimer = QtCore.QTimer()
 
-        self.maxValue = 0.0
-        self.minValue = 0.0
+        self.maxValueEMG = 0.0
+        self.maxValueBIOZ = 0.0
+        self.minValueEMG = 0.0
+        self.minValueBIOZ = 0.0
         self.rawData = []
+        self.ecgSample    = 0
+        self.biozSample   = 0
 
         # --------------- chart settings ---------------
-        self.chartData = QChart()
-        self.axis_y = QValueAxis()
-        self.axis_x = QDateTimeAxis()
-        self.axis_x.setFormat("hh:mm:ss")
-        self.axis_x.setTitleText("Time")
-        self.axis_y.setTitleText("Value")
+        self.chartDataEMG = QChart()
+        self.axis_y_emg = QValueAxis()
+        self.axis_y_emg.setTitleText("mV")
         
-        self.maxData = QLineSeries(self.MainWindow)
-        self.maxData.setName("EMG / BIOZ")
 
-        self.chartData.addSeries(self.maxData)
-        self.chartData.setAnimationOptions(QChart.NoAnimation)
-        self.chartData.setTitle("MAX30001")
-        self.chartData.legend().setVisible(True)
-        self.chartData.legend().setAlignment(Qt.AlignBottom)
-        self.chartData.addAxis(self.axis_y, QtCore.Qt.AlignLeft)
-        self.chartData.addAxis(self.axis_x, QtCore.Qt.AlignBottom)
+        self.chartDataBIOZ = QChart()
+        self.axis_y_bioz = QValueAxis()
+        self.axis_y_bioz.setTitleText('Ohm')
 
-        self.maxData.attachAxis(self.axis_x)
-        self.maxData.attachAxis(self.axis_y)
+        #self.axis_x_emg = QDateTimeAxis()
+        #self.axis_x_emg.setFormat("hh:mm:ss")
+        #self.axis_x_emg.setTitleText("Time")
+        self.axis_x_emg = QValueAxis()
+        self.axis_x_emg.setTitleText('Sample')
 
-        self.Graph.setChart(self.chartData)
+        #self.axis_x_bioz = QDateTimeAxis()
+        #self.axis_x_bioz.setFormat("hh:mm:ss")
+        #self.axis_x_bioz.setTitleText("Time")
+        self.axis_x_bioz = QValueAxis()
+        self.axis_x_bioz.setTitleText('Sample')
+
+        self.maxEMG = QLineSeries(self.MainWindow)
+        self.maxEMG.setName("EMG")
+
+        self.maxBIOZ = QLineSeries(self.MainWindow)
+        self.maxBIOZ.setName("BIOZ")
+
+        self.chartDataEMG.addSeries(self.maxEMG)
+        self.chartDataEMG.setAnimationOptions(QChart.NoAnimation)
+        self.chartDataEMG.setTitle("MAX30001")
+        self.chartDataEMG.legend().setVisible(True)
+        self.chartDataEMG.legend().setAlignment(Qt.AlignBottom)
+        self.chartDataEMG.addAxis(self.axis_y_emg, QtCore.Qt.AlignLeft)
+        self.chartDataEMG.addAxis(self.axis_x_emg, QtCore.Qt.AlignBottom)
+
+        self.maxEMG.attachAxis(self.axis_x_emg)
+        self.maxEMG.attachAxis(self.axis_y_emg)
+
+        self.GraphEMG.setChart(self.chartDataEMG)
+
+        self.chartDataBIOZ.addSeries(self.maxBIOZ)
+        self.chartDataBIOZ.setAnimationOptions(QChart.NoAnimation)
+        self.chartDataBIOZ.setTitle("MAX30001")
+        self.chartDataBIOZ.legend().setVisible(True)
+        self.chartDataBIOZ.legend().setAlignment(Qt.AlignBottom)
+        self.chartDataBIOZ.addAxis(self.axis_y_bioz, QtCore.Qt.AlignLeft)
+        self.chartDataBIOZ.addAxis(self.axis_x_bioz, QtCore.Qt.AlignBottom)
+
+        self.maxBIOZ.attachAxis(self.axis_x_bioz)
+        self.maxBIOZ.attachAxis(self.axis_y_bioz)
+
+        self.GraphBIOZ.setChart(self.chartDataBIOZ)
 
         self.max30001 = max_setup.max30001()
         self.updateBIOZSettings()
@@ -89,7 +123,8 @@ class MyWindow(Ui_MainWindow):
         self.comboBoxBIOZRATE.currentTextChanged.connect(self.updateBIOZSettings)
         self.radioButtonBIOZMeasure.clicked.connect(self.updateMeasureType)
         self.radioButtonEMGMeasure.clicked.connect(self.updateMeasureType)
-
+        self.radioButtonEMG_BIOZ.clicked.connect(self.updateMeasureType)
+        self.horizontalSliderRatio.valueChanged.connect(self.updateRatio)
 
     def openPort(self):
         if self.comboBoxPorts.currentText() != NONE:
@@ -128,7 +163,8 @@ class MyWindow(Ui_MainWindow):
             while True:
                 try:
                     recData = self.ser.readline().decode('utf-8')
-                    value = float(recData.split('#')[1])
+                    cmd = recData.split('#')[1][0]
+                    value = float(recData.split('#')[1][1:])
                     print(value)
                     break
                 except:
@@ -142,29 +178,57 @@ class MyWindow(Ui_MainWindow):
 
         timenow = QtCore.QDateTime.currentDateTime()
 
-        if self.maxData.count() == 0:
-            self.axis_x.setMin(timenow)
-            self.minValue = value
-            self.maxValue = value
+        if cmd == 'E':
+            if self.maxEMG.count() == 0:
+                self.axis_x_emg.setMin(self.ecgSample)
+                self.minValueEMG = value
+                self.maxValueEMG = value
 
-        self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
-        self.maxData.append(timenow.toMSecsSinceEpoch(), value)
-        self.axis_x.setMax(timenow)
+            #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
+            self.rawData.append((self.ecgSample, value))
+            #self.maxEMG.append(timenow.toMSecsSinceEpoch(), value)
+            self.maxEMG.append(self.ecgSample, value)
+            self.axis_x_emg.setMax(self.ecgSample)
+            self.ecgSample += 1
 
-        if value < self.minValue:
-            self.minValue = value
-        if value > self.maxValue:
-            self.maxValue = value
+            if value < self.minValueEMG:
+                self.minValueEMG = value
+            if value > self.maxValueEMG:
+                self.maxValueEMG = value
 
-        self.axis_y.setMax(self.maxValue)
-        self.axis_y.setMin(self.minValue)
+            self.axis_y_emg.setMax(self.maxValueEMG)
+            self.axis_y_emg.setMin(self.minValueEMG)
+
+        elif cmd == 'B':
+            if self.maxBIOZ.count() == 0:
+                self.axis_x_bioz.setMin(self.ecgSample)
+                self.minValueBIOZ = value
+                self.maxValueBIOZ = value
+
+            #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
+            self.rawData.append((self.biozSample, value))
+            #self.maxBIOZ.append(timenow.toMSecsSinceEpoch(), value)
+            self.maxBIOZ.append(self.biozSample, value)
+            self.axis_x_bioz.setMax(self.biozSample)
+            self.biozSample += 1
+
+            if value < self.minValueBIOZ:
+                self.minValueBIOZ = value
+            if value > self.maxValueBIOZ:
+                self.maxValueBIOZ = value
+
+            self.axis_y_bioz.setMax(self.maxValueBIOZ)
+            self.axis_y_bioz.setMin(self.minValueBIOZ)
 
 
     def clearGraph(self):
-        self.maxData.clear()
+        self.maxEMG.clear()
+        self.maxBIOZ.clear()
         self.rawData.clear()
-        self.minValue = 0
-        self.maxValue = 0
+        self.minValueEMG = 0
+        self.maxValueEMG = 0
+        self.minValueBIOZ = 0
+        self.maxValueBIOZ = 0
 
 
     def startMeasurement(self):            
@@ -204,10 +268,17 @@ class MyWindow(Ui_MainWindow):
             self.max30001.measurement_type = max_setup.Measurement_t.ECG
         elif self.radioButtonBIOZMeasure.isChecked():
             self.max30001.measurement_type = max_setup.Measurement_t.BIOZ
+        elif self.radioButtonEMG_BIOZ.isChecked():
+            self.max30001.measurement_type = max_setup.Measurement_t.MIXED
         else:
             self.max30001.measurement_type = max_setup.Measurement_t.UNDEFINED
 
         print(self.max30001.measurement_type)
+
+    def updateRatio(self):
+        self.max30001.bioz_ecg.ratio = self.horizontalSliderRatio.value()
+
+        print(self.max30001.bioz_ecg)
 
 
     def saveFile(self):

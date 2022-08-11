@@ -8,9 +8,10 @@ from enum import Enum, unique
 
 @unique
 class Measurement_t(Enum):
-    UNDEFINED = 0
-    ECG = 1
-    BIOZ =2
+    UNDEFINED   = 0
+    ECG         = 1
+    BIOZ        = 2
+    MIXED       = 3
 
 @unique
 class InductionCurrent_t(Enum):
@@ -100,6 +101,15 @@ class ECG_RATE_t(Enum):
     RATE_NORMAL     = 2
     RATE_FAST       = 3
 
+class BIOZ_EMG():
+    def __init__(self) -> None:
+        self.ratio = 0
+
+    def __repr__(self) -> str:
+        print("BIOZ + EMG")
+        print(f"ratio: {self.ratio}")
+        return "Updated"
+
 class BIOZ():
     def __init__(self) -> None:
         self.inductionCurrent = InductionCurrent_t.UNDEFINED
@@ -139,6 +149,7 @@ class max30001():
         self.measurement_type = Measurement_t.UNDEFINED
         self.bioz             = BIOZ()
         self.ecg              = ECG() 
+        self.bioz_ecg         = BIOZ_EMG()
 
     def __repr__(self) -> str:
         print(self.measurement_type)

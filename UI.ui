@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1055</width>
-    <height>729</height>
+    <width>1184</width>
+    <height>890</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>580</y>
+      <y>620</y>
       <width>151</width>
       <height>22</height>
      </rect>
@@ -28,8 +28,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>610</y>
-      <width>75</width>
+      <y>650</y>
+      <width>71</width>
       <height>23</height>
      </rect>
     </property>
@@ -43,7 +43,7 @@
       <x>10</x>
       <y>0</y>
       <width>151</width>
-      <height>561</height>
+      <height>611</height>
      </rect>
     </property>
     <property name="title">
@@ -550,23 +550,61 @@
       </property>
      </item>
     </widget>
+    <widget class="QRadioButton" name="radioButtonEMG_BIOZ">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>560</y>
+       <width>101</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>BIOZ + EMG</string>
+     </property>
+    </widget>
+    <widget class="QSlider" name="horizontalSliderRatio">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>580</y>
+       <width>131</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>9</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="invertedAppearance">
+      <bool>false</bool>
+     </property>
+     <property name="invertedControls">
+      <bool>false</bool>
+     </property>
+    </widget>
    </widget>
-   <widget class="QChartView" name="Graph" native="true">
+   <widget class="QChartView" name="GraphEMG" native="true">
     <property name="geometry">
      <rect>
       <x>170</x>
       <y>10</y>
-      <width>881</width>
-      <height>621</height>
+      <width>1011</width>
+      <height>421</height>
      </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButtonSet">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>640</y>
-      <width>75</width>
+      <x>90</x>
+      <y>650</y>
+      <width>71</width>
       <height>23</height>
      </rect>
     </property>
@@ -577,8 +615,8 @@
    <widget class="QPushButton" name="pushButtonStart">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>640</y>
+      <x>10</x>
+      <y>690</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -590,8 +628,8 @@
    <widget class="QPushButton" name="pushButtonStop">
     <property name="geometry">
      <rect>
-      <x>260</x>
-      <y>640</y>
+      <x>90</x>
+      <y>690</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -603,8 +641,8 @@
    <widget class="QPushButton" name="pushButtonSave">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>670</y>
+      <x>90</x>
+      <y>730</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -616,9 +654,9 @@
    <widget class="QLabel" name="statusBar">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>640</y>
-      <width>371</width>
+      <x>10</x>
+      <y>780</y>
+      <width>151</width>
       <height>16</height>
      </rect>
     </property>
@@ -629,8 +667,8 @@
    <widget class="QPushButton" name="pushButtonClearGraph">
     <property name="geometry">
      <rect>
-      <x>350</x>
-      <y>640</y>
+      <x>10</x>
+      <y>730</y>
       <width>75</width>
       <height>23</height>
      </rect>
@@ -639,13 +677,23 @@
      <string>Wyczyść</string>
     </property>
    </widget>
+   <widget class="QChartView" name="GraphBIOZ" native="true">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>440</y>
+      <width>1011</width>
+      <height>391</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1055</width>
+     <width>1184</width>
      <height>21</height>
     </rect>
    </property>
