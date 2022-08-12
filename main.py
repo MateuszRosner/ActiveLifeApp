@@ -181,14 +181,16 @@ class MyWindow(Ui_MainWindow):
         if cmd == 'E':
             if self.maxEMG.count() == 0:
                 self.axis_x_emg.setMin(self.ecgSample)
+                #self.axis_x_emg.setMin(timenow)
                 self.minValueEMG = value
                 self.maxValueEMG = value
 
-            #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
-            self.rawData.append((self.ecgSample, value))
+            #self.rawData.append((self.ecgSample, value))
             #self.maxEMG.append(timenow.toMSecsSinceEpoch(), value)
+            self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value, 0))
             self.maxEMG.append(self.ecgSample, value)
             self.axis_x_emg.setMax(self.ecgSample)
+            #self.axis_x_emg.setMax(timenow)
             self.ecgSample += 1
 
             if value < self.minValueEMG:
@@ -202,14 +204,16 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'B':
             if self.maxBIOZ.count() == 0:
                 self.axis_x_bioz.setMin(self.ecgSample)
+                #self.axis_x_bioz.setMin(timenow)
                 self.minValueBIOZ = value
                 self.maxValueBIOZ = value
 
             #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
-            self.rawData.append((self.biozSample, value))
             #self.maxBIOZ.append(timenow.toMSecsSinceEpoch(), value)
+            self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), 0, value))
             self.maxBIOZ.append(self.biozSample, value)
             self.axis_x_bioz.setMax(self.biozSample)
+            #self.axis_x_bioz.setMax(timenow)
             self.biozSample += 1
 
             if value < self.minValueBIOZ:
