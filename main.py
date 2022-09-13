@@ -210,9 +210,9 @@ class MyWindow(Ui_MainWindow):
                 #self.axis_x_bioz.setMax(timenow)
                 self.biozSample += 1
 
-                if value < self.minValueBIOZ:
+                if value <= self.minValueBIOZ:
                     self.minValueBIOZ = value
-                if value > self.maxValueBIOZ:
+                if value >= self.maxValueBIOZ:
                     self.maxValueBIOZ = value
 
                 self.axis_y_bioz.setMax(self.maxValueBIOZ)
