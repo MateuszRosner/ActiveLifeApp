@@ -165,8 +165,8 @@ class MyWindow(Ui_MainWindow):
         if cmd == 'E':
             for value in values:
                 value = float(value)
-                if self.maxEMG.count() == 1500:
-                    self.clearGraph()
+                #if self.maxEMG.count() == 1500:
+                #    self.clearGraph()
 
                 if self.maxEMG.count() == 0:
                     self.axis_x_emg.setMin(self.ecgSample)
@@ -193,8 +193,8 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'B':
             for value in values:
                 value = float(value)
-                if self.maxBIOZ.count() == 1500:
-                    self.clearGraph()
+                #if self.maxBIOZ.count() == 1500:
+                #    self.clearGraph()
 
                 if self.maxBIOZ.count() == 0:
                     self.axis_x_bioz.setMin(self.ecgSample)
