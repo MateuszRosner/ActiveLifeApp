@@ -197,7 +197,7 @@ class MyWindow(Ui_MainWindow):
                 #    self.clearGraph()
 
                 if self.maxBIOZ.count() == 0:
-                    self.axis_x_bioz.setMin(self.ecgSample)
+                    self.axis_x_bioz.setMin(self.biozSample)
                     #self.axis_x_bioz.setMin(timenow)
                     self.minValueBIOZ = value
                     self.maxValueBIOZ = value
