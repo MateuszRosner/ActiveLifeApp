@@ -1,3 +1,5 @@
+from ctypes.wintypes import DOUBLE
+from numbers import Real
 from pickle import NONE
 from random import random
 from select import select
@@ -6,6 +8,7 @@ import string
 import sys
 import time
 import datetime
+from tokenize import Double
 import serial
 import serial.tools.list_ports
 import csv
@@ -24,23 +27,23 @@ class MyWindow(Ui_MainWindow):
         self.setupUi(self.MainWindow)
         self.listSerialPorts()
         self.ser=serial.Serial(
-            baudrate=115200,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            timeout=0.5)
+            baudrate    =  115200,
+            parity      =  serial.PARITY_NONE,
+            stopbits    =  serial.STOPBITS_ONE,
+            bytesize    =  serial.EIGHTBITS,
+            timeout     =  0.5)
 
         self.serThreadRdy = False
         
-        self.serialThread = threading.Thread(target=self.getDataFromSerial)
+        self.serialThread        = threading.Thread(target=self.getDataFromSerial)
         self.serialThread.daemon = True
 
-        self.graphTimer = QtCore.QTimer()
+        self.graphTimer          = QtCore.QTimer()
 
-        self.maxValueEMG = 0.0
-        self.maxValueBIOZ = 0.0
-        self.minValueEMG = 0.0
-        self.minValueBIOZ = 0.0
+        self.maxValueEMG    = 0.0
+        self.maxValueBIOZ   = 0.0
+        self.minValueEMG    = 0.0
+        self.minValueBIOZ   = 0.0
         self.rawData = []
         self.ecgSample    = 0
         self.biozSample   = 0
@@ -110,7 +113,7 @@ class MyWindow(Ui_MainWindow):
         self.pushButtonClearGraph.clicked.connect(self.clearGraph)
         self.pushButtonSave.clicked.connect(self.saveFile)
         self.pushButtonSet.clicked.connect(self.setActualSettings)
-        self.graphTimer.timeout.connect(self.create_linechart)
+        #self.graphTimer.timeout.connect(self.create_linechart)
         self.comboBoxEMGGAIN.currentTextChanged.connect(self.updateECGSettings)
         self.comboBoxEMGLPF.currentTextChanged.connect(self.updateECGSettings)
         self.comboBoxEMGHPF.currentTextChanged.connect(self.updateECGSettings)
@@ -132,7 +135,9 @@ class MyWindow(Ui_MainWindow):
             print(self.comboBoxPorts.currentText().split(" ")[0])
             try:
                 self.ser.open()
-                #self.ser.flush()
+                self.ser.flush()
+                self.serialThread.start()
+                #self.setActualSettings()
             except:
                 print("[ERROR] Can't open serial port...")
 
@@ -154,85 +159,76 @@ class MyWindow(Ui_MainWindow):
             self.ser.write(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'))
 
 
-    def create_linechart(self):
-        str : recData 
-        value = 0.0
-
-        self.ser.flushInput()
-        if self.ser.isOpen() == True:
-            while True:
-                try:
-                    recData = self.ser.readline().decode('utf-8')
-                    cmd = recData.split('#')[1][0]
-                    value = float(recData.split('#')[1][1:])
-                    print(value)
-                    break
-                except:
-                    print("corrupted data...")
-                    self.ser.flushInput()
-                    return
-
-        if (value > 300) or (value < -300):
-            print("[INFO] overlimit...")
-            return
-
+    def create_linechart(self, cmd, values):
         timenow = QtCore.QDateTime.currentDateTime()
 
         if cmd == 'E':
-            if self.maxEMG.count() == 0:
-                self.axis_x_emg.setMin(self.ecgSample)
-                #self.axis_x_emg.setMin(timenow)
-                self.minValueEMG = value
-                self.maxValueEMG = value
+            for value in values:
+                value = float(value)
+                if self.maxEMG.count() == 1500:
+                    self.clearGraph()
 
-            #self.rawData.append((self.ecgSample, value))
-            #self.maxEMG.append(timenow.toMSecsSinceEpoch(), value)
-            self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value, 0))
-            self.maxEMG.append(self.ecgSample, value)
-            self.axis_x_emg.setMax(self.ecgSample)
-            #self.axis_x_emg.setMax(timenow)
-            self.ecgSample += 1
+                if self.maxEMG.count() == 0:
+                    self.axis_x_emg.setMin(self.ecgSample)
+                    #self.axis_x_emg.setMin(timenow)
+                    self.minValueEMG = value
+                    self.maxValueEMG = value
 
-            if value < self.minValueEMG:
-                self.minValueEMG = value
-            if value > self.maxValueEMG:
-                self.maxValueEMG = value
+                #self.rawData.append((self.ecgSample, value))
+                #self.maxEMG.append(timenow.toMSecsSinceEpoch(), value)
+                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value, 0))
+                self.maxEMG.append(self.ecgSample, value)
+                self.axis_x_emg.setMax(self.ecgSample)
+                #self.axis_x_emg.setMax(timenow)
+                self.ecgSample += 1
 
-            self.axis_y_emg.setMax(self.maxValueEMG)
-            self.axis_y_emg.setMin(self.minValueEMG)
+                if value < self.minValueEMG:
+                    self.minValueEMG = value
+                if value > self.maxValueEMG:
+                    self.maxValueEMG = value
+
+                self.axis_y_emg.setMax(self.maxValueEMG)
+                self.axis_y_emg.setMin(self.minValueEMG)
 
         elif cmd == 'B':
-            if self.maxBIOZ.count() == 0:
-                self.axis_x_bioz.setMin(self.ecgSample)
-                #self.axis_x_bioz.setMin(timenow)
-                self.minValueBIOZ = value
-                self.maxValueBIOZ = value
+            for value in values:
+                value = float(value)
+                if self.maxBIOZ.count() == 1500:
+                    self.clearGraph()
 
-            #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
-            #self.maxBIOZ.append(timenow.toMSecsSinceEpoch(), value)
-            self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), 0, value))
-            self.maxBIOZ.append(self.biozSample, value)
-            self.axis_x_bioz.setMax(self.biozSample)
-            #self.axis_x_bioz.setMax(timenow)
-            self.biozSample += 1
+                if self.maxBIOZ.count() == 0:
+                    self.axis_x_bioz.setMin(self.ecgSample)
+                    #self.axis_x_bioz.setMin(timenow)
+                    self.minValueBIOZ = value
+                    self.maxValueBIOZ = value
 
-            if value < self.minValueBIOZ:
-                self.minValueBIOZ = value
-            if value > self.maxValueBIOZ:
-                self.maxValueBIOZ = value
+                #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
+                #self.maxBIOZ.append(timenow.toMSecsSinceEpoch(), value)
+                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), 0, value))
+                self.maxBIOZ.append(self.biozSample, value)
+                self.axis_x_bioz.setMax(self.biozSample)
+                #self.axis_x_bioz.setMax(timenow)
+                self.biozSample += 1
 
-            self.axis_y_bioz.setMax(self.maxValueBIOZ)
-            self.axis_y_bioz.setMin(self.minValueBIOZ)
+                if value < self.minValueBIOZ:
+                    self.minValueBIOZ = value
+                if value > self.maxValueBIOZ:
+                    self.maxValueBIOZ = value
+
+                self.axis_y_bioz.setMax(self.maxValueBIOZ)
+                self.axis_y_bioz.setMin(self.minValueBIOZ)
 
 
     def clearGraph(self):
         self.maxEMG.clear()
         self.maxBIOZ.clear()
         self.rawData.clear()
-        self.minValueEMG = 0
-        self.maxValueEMG = 0
-        self.minValueBIOZ = 0
-        self.maxValueBIOZ = 0
+        self.minValueEMG    = 0
+        self.maxValueEMG    = 0
+        self.minValueBIOZ   = 0
+        self.maxValueBIOZ   = 0
+        self.ecgSample      = 0
+        self.biozSample     = 0
 
 
     def startMeasurement(self):            
@@ -245,25 +241,37 @@ class MyWindow(Ui_MainWindow):
 
 
     def getDataFromSerial(self):
-        pass
-
+        if self.ser.isOpen() == True:
+            print("[INFO] Serial thread started!")
+            while True:
+                values = []
+                str: cmd
+                try:
+                    recData = self.ser.readline().decode('utf-8')
+                    cmd = recData.split('#')[1][0]
+                    values = (recData.split('#')[1][1:].split(',')[1:])
+                    print(values)    
+                    self.create_linechart(cmd, values)                
+                except:
+                    print("corrupted data...")
+                    self.ser.flushInput()
+                    
 
     def updateECGSettings(self):
-        
         self.max30001.ecg.gain = max_setup.ECG_GAIN_t(self.comboBoxEMGGAIN.currentIndex()+1)
-        self.max30001.ecg.lpf = max_setup.ECG_LPF_t(self.comboBoxEMGLPF.currentIndex()+1)
-        self.max30001.ecg.hpf = max_setup.ECG_HPF_t(self.comboBoxEMGHPF.currentIndex()+1)
+        self.max30001.ecg.lpf  = max_setup.ECG_LPF_t(self.comboBoxEMGLPF.currentIndex()+1)
+        self.max30001.ecg.hpf  = max_setup.ECG_HPF_t(self.comboBoxEMGHPF.currentIndex()+1)
         self.max30001.ecg.rate = max_setup.ECG_RATE_t(self.comboBoxEMGRATE.currentIndex()+1)
         print(self.max30001.ecg)
         
 
     def updateBIOZSettings(self):
         self.max30001.bioz.inductionCurrent = max_setup.InductionCurrent_t(self.comboBoxBIOZCURRMAG.currentIndex()+1)
-        self.max30001.bioz.inductionFreq = max_setup.InductionFreq_t(self.comboBoxBIOZCURRFREQ.currentIndex()+1)
-        self.max30001.bioz.hpf = max_setup.BIOZ_HPF_t(self.comboBoxBIOZHPF.currentIndex()+1)
-        self.max30001.bioz.lpf = max_setup.BIOZ_LPF_t(self.comboBoxBIOZLPF.currentIndex()+1)
-        self.max30001.bioz.gain = max_setup.BIOZ_GAIN_t(self.comboBoxBIOZGAIN.currentIndex()+1)
-        self.max30001.bioz.rate = max_setup.BIOZ_RATE_t(self.comboBoxBIOZRATE.currentIndex()+1)
+        self.max30001.bioz.inductionFreq    = max_setup.InductionFreq_t(self.comboBoxBIOZCURRFREQ.currentIndex()+1)
+        self.max30001.bioz.hpf              = max_setup.BIOZ_HPF_t(self.comboBoxBIOZHPF.currentIndex()+1)
+        self.max30001.bioz.lpf              = max_setup.BIOZ_LPF_t(self.comboBoxBIOZLPF.currentIndex()+1)
+        self.max30001.bioz.gain             = max_setup.BIOZ_GAIN_t(self.comboBoxBIOZGAIN.currentIndex()+1)
+        self.max30001.bioz.rate             = max_setup.BIOZ_RATE_t(self.comboBoxBIOZRATE.currentIndex()+1)
         print(self.max30001.bioz)
 
 
