@@ -165,7 +165,7 @@ class MyWindow(Ui_MainWindow):
             for value in values:
                 value = float(value)
                 if self.maxEMG.count() == 1500:
-                    self.clearGraph()
+                    self.clearGraph2()
 
                 if self.maxEMG.count() == 0:
                     self.axis_x_emg.setMin(self.ecgSample)
@@ -193,7 +193,7 @@ class MyWindow(Ui_MainWindow):
             for value in values:
                 value = float(value)
                 if self.maxBIOZ.count() == 1500:
-                    self.clearGraph()
+                    self.clearGraph2()
 
                 if self.maxBIOZ.count() == 0:
                     self.axis_x_bioz.setMin(self.biozSample)
@@ -228,6 +228,14 @@ class MyWindow(Ui_MainWindow):
         self.maxValueBIOZ   = 0
         self.ecgSample      = 0
         self.biozSample     = 0
+
+    def clearGraph2(self):
+        self.maxEMG.clear()
+        self.maxBIOZ.clear()
+        self.minValueEMG    = 0
+        self.maxValueEMG    = 0
+        self.minValueBIOZ   = 0
+        self.maxValueBIOZ   = 0
 
 
     def startMeasurement(self):            
