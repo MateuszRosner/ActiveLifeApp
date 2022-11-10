@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1184</width>
-    <height>890</height>
+    <height>906</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -595,7 +595,7 @@
       <x>170</x>
       <y>10</y>
       <width>1011</width>
-      <height>421</height>
+      <height>281</height>
      </rect>
     </property>
    </widget>
@@ -681,9 +681,19 @@
     <property name="geometry">
      <rect>
       <x>170</x>
-      <y>440</y>
+      <y>300</y>
       <width>1011</width>
-      <height>391</height>
+      <height>281</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QChartView" name="GraphMMG" native="true">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>590</y>
+      <width>1011</width>
+      <height>281</height>
      </rect>
     </property>
    </widget>

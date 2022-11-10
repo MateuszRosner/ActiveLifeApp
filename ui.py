@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1184, 890)
+        MainWindow.resize(1184, 906)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.comboBoxPorts = QtWidgets.QComboBox(self.centralwidget)
@@ -153,7 +153,7 @@ class Ui_MainWindow(object):
         self.horizontalSliderRatio.setInvertedControls(False)
         self.horizontalSliderRatio.setObjectName("horizontalSliderRatio")
         self.GraphEMG = QChartView(self.centralwidget)
-        self.GraphEMG.setGeometry(QtCore.QRect(170, 10, 1011, 421))
+        self.GraphEMG.setGeometry(QtCore.QRect(170, 10, 1011, 281))
         self.GraphEMG.setObjectName("GraphEMG")
         self.pushButtonSet = QtWidgets.QPushButton(self.centralwidget)
         self.pushButtonSet.setGeometry(QtCore.QRect(90, 650, 71, 23))
@@ -174,8 +174,11 @@ class Ui_MainWindow(object):
         self.pushButtonClearGraph.setGeometry(QtCore.QRect(10, 730, 75, 23))
         self.pushButtonClearGraph.setObjectName("pushButtonClearGraph")
         self.GraphBIOZ = QChartView(self.centralwidget)
-        self.GraphBIOZ.setGeometry(QtCore.QRect(170, 440, 1011, 391))
+        self.GraphBIOZ.setGeometry(QtCore.QRect(170, 300, 1011, 281))
         self.GraphBIOZ.setObjectName("GraphBIOZ")
+        self.GraphMMG = QChartView(self.centralwidget)
+        self.GraphMMG.setGeometry(QtCore.QRect(170, 590, 1011, 281))
+        self.GraphMMG.setObjectName("GraphMMG")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1184, 21))
@@ -262,3 +265,13 @@ class Ui_MainWindow(object):
         self.statusBar.setText(_translate("MainWindow", "STATUS"))
         self.pushButtonClearGraph.setText(_translate("MainWindow", "Wyczyść"))
 from PyQt5.QtChart import QChartView
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

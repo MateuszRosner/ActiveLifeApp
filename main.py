@@ -43,9 +43,12 @@ class MyWindow(Ui_MainWindow):
         self.maxValueBIOZ   = 0.0
         self.minValueEMG    = 0.0
         self.minValueBIOZ   = 0.0
+        self.minValueMMG    = 0.0
+        self.maxValueMMG    = 0.0
         self.rawData = []
         self.ecgSample    = 0
         self.biozSample   = 0
+        self.mmgSample    = 0
 
         # --------------- chart settings ---------------
         self.chartDataEMG = QChart()
@@ -57,23 +60,30 @@ class MyWindow(Ui_MainWindow):
         self.axis_y_bioz = QValueAxis()
         self.axis_y_bioz.setTitleText('Ohm')
 
+        self.chartDataMMG = QChart()
+        self.axis_y_mmg = QValueAxis()
+        self.axis_y_mmg.setTitleText('vlaue')
+
         #self.axis_x_emg = QDateTimeAxis()
         #self.axis_x_emg.setFormat("hh:mm:ss")
         #self.axis_x_emg.setTitleText("Time")
         self.axis_x_emg = QValueAxis()
         self.axis_x_emg.setTitleText('Sample')
 
-        #self.axis_x_bioz = QDateTimeAxis()
-        #self.axis_x_bioz.setFormat("hh:mm:ss")
-        #self.axis_x_bioz.setTitleText("Time")
         self.axis_x_bioz = QValueAxis()
         self.axis_x_bioz.setTitleText('Sample')
+
+        self.axis_x_mmg = QValueAxis()
+        self.axis_x_mmg.setTitleText('Sample')
 
         self.maxEMG = QLineSeries(self.MainWindow)
         self.maxEMG.setName("EMG")
 
         self.maxBIOZ = QLineSeries(self.MainWindow)
         self.maxBIOZ.setName("BIOZ")
+
+        self.maxMMG = QLineSeries(self.MainWindow)
+        self.maxMMG.setName("MMG")
 
         self.chartDataEMG.addSeries(self.maxEMG)
         self.chartDataEMG.setAnimationOptions(QChart.NoAnimation)
@@ -100,6 +110,19 @@ class MyWindow(Ui_MainWindow):
         self.maxBIOZ.attachAxis(self.axis_y_bioz)
 
         self.GraphBIOZ.setChart(self.chartDataBIOZ)
+
+        self.chartDataMMG.addSeries(self.maxMMG)
+        self.chartDataMMG.setAnimationOptions(QChart.NoAnimation)
+        self.chartDataMMG.setTitle("MAX30001")
+        self.chartDataMMG.legend().setVisible(True)
+        self.chartDataMMG.legend().setAlignment(Qt.AlignBottom)
+        self.chartDataMMG.addAxis(self.axis_y_mmg, QtCore.Qt.AlignLeft)
+        self.chartDataMMG.addAxis(self.axis_x_mmg, QtCore.Qt.AlignBottom)
+
+        self.maxMMG.attachAxis(self.axis_x_mmg)
+        self.maxMMG.attachAxis(self.axis_y_mmg)
+
+        self.GraphMMG.setChart(self.chartDataMMG)
 
         self.max30001 = max_setup.max30001()
         self.updateBIOZSettings()
@@ -175,7 +198,7 @@ class MyWindow(Ui_MainWindow):
 
                 #self.rawData.append((self.ecgSample, value))
                 #self.maxEMG.append(timenow.toMSecsSinceEpoch(), value)
-                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value, 0))
+                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value, 0, 0))
                 self.maxEMG.append(self.ecgSample, value)
                 self.axis_x_emg.setMax(self.ecgSample)
                 #self.axis_x_emg.setMax(timenow)
@@ -203,7 +226,7 @@ class MyWindow(Ui_MainWindow):
 
                 #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
                 #self.maxBIOZ.append(timenow.toMSecsSinceEpoch(), value)
-                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), 0, value))
+                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), 0, value, 0))
                 self.maxBIOZ.append(self.biozSample, value)
                 self.axis_x_bioz.setMax(self.biozSample)
                 #self.axis_x_bioz.setMax(timenow)
@@ -217,25 +240,56 @@ class MyWindow(Ui_MainWindow):
                 self.axis_y_bioz.setMax(self.maxValueBIOZ)
                 self.axis_y_bioz.setMin(self.minValueBIOZ)
 
+        elif cmd == 'M':
+            for value in values:
+                value = float(value)
+                if self.maxMMG.count() == 1500:
+                    self.clearGraph2()
+
+                if self.maxMMG.count() == 0:
+                    self.axis_x_mmg.setMin(self.mmgSample)
+                    self.minValueMMG = value
+                    self.maxValueMMG = value
+
+                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), 0, 0, value))
+                self.maxMMG.append(self.mmgSample, value)
+                self.axis_x_mmg.setMax(self.mmgSample)
+                self.mmgSample += 1
+
+                if value < self.minValueMMG:
+                    self.minValueMMG = value
+                if value > self.maxValueMMG:
+                    self.maxValueMMG = value
+
+                self.axis_y_mmg.setMax(self.maxValueMMG)
+                self.axis_y_mmg.setMin(self.minValueMMG)
+
 
     def clearGraph(self):
         self.maxEMG.clear()
         self.maxBIOZ.clear()
+        self.maxMMG.clear()
         self.rawData.clear()
         self.minValueEMG    = 0
         self.maxValueEMG    = 0
         self.minValueBIOZ   = 0
         self.maxValueBIOZ   = 0
+        self.minValueMMG    = 0
+        self.maxValueMMG    = 0
         self.ecgSample      = 0
         self.biozSample     = 0
+        self.mmgSample      = 0
 
     def clearGraph2(self):
         self.maxEMG.clear()
         self.maxBIOZ.clear()
+        self.maxMMG.clear()
         self.minValueEMG    = 0
         self.maxValueEMG    = 0
         self.minValueBIOZ   = 0
         self.maxValueBIOZ   = 0
+        self.minValueMMG    = 0
+        self.maxValueMMG    = 0
 
 
     def startMeasurement(self):            
@@ -309,6 +363,9 @@ class MyWindow(Ui_MainWindow):
 
         if dlg.exec_():
             filenames = dlg.selectedFiles()
+
+        if filenames.count() == 0:
+            return
         
         with open(filenames[0], 'w', encoding='UTF8', newline='') as f:
             writer = csv.writer(f)
