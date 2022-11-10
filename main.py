@@ -187,7 +187,7 @@ class MyWindow(Ui_MainWindow):
         if cmd == 'E':
             for value in values:
                 value = float(value)
-                if self.maxEMG.count() == 1500:
+                if self.maxEMG.count() == 1000:
                     self.clearGraph2()
 
                 if self.maxEMG.count() == 0:
@@ -215,21 +215,17 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'B':
             for value in values:
                 value = float(value)
-                if self.maxBIOZ.count() == 1500:
+                if self.maxBIOZ.count() == 1000:
                     self.clearGraph2()
 
                 if self.maxBIOZ.count() == 0:
                     self.axis_x_bioz.setMin(self.biozSample)
-                    #self.axis_x_bioz.setMin(timenow)
                     self.minValueBIOZ = value
                     self.maxValueBIOZ = value
 
-                #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value))
-                #self.maxBIOZ.append(timenow.toMSecsSinceEpoch(), value)
                 self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), 0, value, 0))
                 self.maxBIOZ.append(self.biozSample, value)
                 self.axis_x_bioz.setMax(self.biozSample)
-                #self.axis_x_bioz.setMax(timenow)
                 self.biozSample += 1
 
                 if value < self.minValueBIOZ:
@@ -243,7 +239,7 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'M':
             for value in values:
                 value = float(value)
-                if self.maxMMG.count() == 1500:
+                if self.maxMMG.count() == 1000:
                     self.clearGraph2()
 
                 if self.maxMMG.count() == 0:
