@@ -157,9 +157,7 @@ class MyWindow(Ui_MainWindow):
             print(self.comboBoxPorts.currentText().split(" ")[0])
             try:
                 self.ser.open()
-                self.ser.flush()
                 self.serialThread.start()
-                #self.setActualSettings()
             except:
                 print("[ERROR] Can't open serial port...")
 
@@ -179,6 +177,7 @@ class MyWindow(Ui_MainWindow):
     def setActualSettings(self):
         if self.ser.isOpen():
             self.ser.write(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'))
+            print(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'))
 
 
     def create_linechart(self, cmd, values):
@@ -187,8 +186,8 @@ class MyWindow(Ui_MainWindow):
         if cmd == 'E':
             for value in values:
                 value = float(value)
-                if self.maxEMG.count() == 1000:
-                    self.clearGraph2()
+                if self.maxEMG.count() == 250:
+                    self.clearGraphEMG()
 
                 if self.maxEMG.count() == 0:
                     self.axis_x_emg.setMin(self.ecgSample)
@@ -196,9 +195,8 @@ class MyWindow(Ui_MainWindow):
                     self.minValueEMG = value
                     self.maxValueEMG = value
 
-                #self.rawData.append((self.ecgSample, value))
-                #self.maxEMG.append(timenow.toMSecsSinceEpoch(), value)
-                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value, 0, 0))
+                #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value, 0, 0))
+                self.rawData.append((self.ecgSample, value, 0, 0, 0, 0))
                 self.maxEMG.append(self.ecgSample, value)
                 self.axis_x_emg.setMax(self.ecgSample)
                 #self.axis_x_emg.setMax(timenow)
@@ -215,15 +213,15 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'B':
             for value in values:
                 value = float(value)
-                if self.maxBIOZ.count() == 1000:
-                    self.clearGraph2()
+                if self.maxBIOZ.count() == 250:
+                    self.clearGraphBIOZ()
 
                 if self.maxBIOZ.count() == 0:
                     self.axis_x_bioz.setMin(self.biozSample)
                     self.minValueBIOZ = value
                     self.maxValueBIOZ = value
 
-                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), 0, value, 0))
+                self.rawData.append((0, 0, self.biozSample, value, 0, 0))
                 self.maxBIOZ.append(self.biozSample, value)
                 self.axis_x_bioz.setMax(self.biozSample)
                 self.biozSample += 1
@@ -239,15 +237,15 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'M':
             for value in values:
                 value = float(value)
-                if self.maxMMG.count() == 1000:
-                    self.clearGraph2()
+                if self.maxMMG.count() == 250:
+                    self.clearGraphMMG()
 
                 if self.maxMMG.count() == 0:
                     self.axis_x_mmg.setMin(self.mmgSample)
                     self.minValueMMG = value
                     self.maxValueMMG = value
 
-                self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), 0, 0, value))
+                self.rawData.append((0, 0, 0, 0, self.mmgSample, value))
                 self.maxMMG.append(self.mmgSample, value)
                 self.axis_x_mmg.setMax(self.mmgSample)
                 self.mmgSample += 1
@@ -276,43 +274,53 @@ class MyWindow(Ui_MainWindow):
         self.biozSample     = 0
         self.mmgSample      = 0
 
-    def clearGraph2(self):
+    def clearGraphEMG(self):
         self.maxEMG.clear()
-        self.maxBIOZ.clear()
-        self.maxMMG.clear()
         self.minValueEMG    = 0
         self.maxValueEMG    = 0
+
+
+    def clearGraphBIOZ(self):
+        self.maxBIOZ.clear()
         self.minValueBIOZ   = 0
         self.maxValueBIOZ   = 0
+
+    def clearGraphMMG(self):
+        self.maxMMG.clear()
         self.minValueMMG    = 0
         self.maxValueMMG    = 0
 
 
-    def startMeasurement(self):            
-        self.graphTimer.start(1)
+    def startMeasurement(self): 
+        self.ser.flush()
+        self.ser.flushInput()           
+        self.serThreadRdy = True
+        
 
 
     def stopMeasurement(self):
         self.serThreadRdy = False
-        self.graphTimer.stop()
 
 
     def getDataFromSerial(self):
-        if self.ser.isOpen() == True:
-            print("[INFO] Serial thread started!")
-            while True:
+        print("[INFO] Serial thread started!")
+        while True:
+            if self.serThreadRdy == True:
                 values = []
                 str: cmd
                 try:
                     recData = self.ser.readline().decode('utf-8')
                     cmd = recData.split('#')[1][0]
                     values = (recData.split('#')[1][1:].split(',')[1:])
-                    print(values)    
+                    #print(values)    
                     self.create_linechart(cmd, values)                
-                except:
+                except Exception as err:
                     print("corrupted data...")
+                    print(err)
                     self.ser.flushInput()
-                    
+            else:
+                time.sleep(0.5)
+
 
     def updateECGSettings(self):
         self.max30001.ecg.gain = max_setup.ECG_GAIN_t(self.comboBoxEMGGAIN.currentIndex()+1)
@@ -346,7 +354,6 @@ class MyWindow(Ui_MainWindow):
 
     def updateRatio(self):
         self.max30001.bioz_ecg.ratio = self.horizontalSliderRatio.value()
-
         print(self.max30001.bioz_ecg)
 
 
@@ -359,15 +366,15 @@ class MyWindow(Ui_MainWindow):
 
         if dlg.exec_():
             filenames = dlg.selectedFiles()
-
-        if filenames.count() == 0:
-            return
         
-        with open(filenames[0], 'w', encoding='UTF8', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerows(self.rawData)
+        try:
+            with open(filenames[0], 'w', encoding='UTF8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(self.rawData)
 
-        print("CSV saved")
+            print("CSV saved")
+        except:
+            print("Failed to save CSV")
 
 
 if __name__ == "__main__":
