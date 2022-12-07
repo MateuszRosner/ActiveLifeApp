@@ -1,13 +1,6 @@
-from ctypes.wintypes import DOUBLE
-from numbers import Real
-from pickle import NONE
-from random import random
-from select import select
 import threading
-import string
 import sys
 import time
-import datetime
 import serial
 import serial.tools.list_ports
 import csv
@@ -15,8 +8,10 @@ import max_setup
 
 from ui import Ui_MainWindow
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtChart import QChart, QChartView, QLineSeries, QValueAxis, QDateTimeAxis
+from PyQt5.QtChart import QChart, QLineSeries, QValueAxis
 from PyQt5.QtCore import Qt
+
+CHART_MAX_SAMPLES = 500
 
 class MyWindow(Ui_MainWindow):
 # ---------------class init functions---------------
@@ -46,6 +41,7 @@ class MyWindow(Ui_MainWindow):
         self.minValueMMG    = 0.0
         self.maxValueMMG    = 0.0
         self.rawData = []
+        self.rawData.append(("ecg smp", "ecg val", "bioz smp", "bioz val", "mmg smp", "mmg val"))
         self.ecgSample    = 0
         self.biozSample   = 0
         self.mmgSample    = 0
@@ -55,7 +51,6 @@ class MyWindow(Ui_MainWindow):
         self.axis_y_emg = QValueAxis()
         self.axis_y_emg.setTitleText("mV")
         
-
         self.chartDataBIOZ = QChart()
         self.axis_y_bioz = QValueAxis()
         self.axis_y_bioz.setTitleText('Ohm')
@@ -64,9 +59,6 @@ class MyWindow(Ui_MainWindow):
         self.axis_y_mmg = QValueAxis()
         self.axis_y_mmg.setTitleText('vlaue')
 
-        #self.axis_x_emg = QDateTimeAxis()
-        #self.axis_x_emg.setFormat("hh:mm:ss")
-        #self.axis_x_emg.setTitleText("Time")
         self.axis_x_emg = QValueAxis()
         self.axis_x_emg.setTitleText('Sample')
 
@@ -152,7 +144,7 @@ class MyWindow(Ui_MainWindow):
         self.horizontalSliderRatio.valueChanged.connect(self.updateRatio)
 
     def openPort(self):
-        if self.comboBoxPorts.currentText() != NONE:
+        if self.comboBoxPorts.currentText() != None:
             self.ser.port = self.comboBoxPorts.currentText().split(" ")[0]
             print(self.comboBoxPorts.currentText().split(" ")[0])
             try:
@@ -181,25 +173,24 @@ class MyWindow(Ui_MainWindow):
 
 
     def create_linechart(self, cmd, values):
-        timenow = QtCore.QDateTime.currentDateTime()
-
         if cmd == 'E':
-            for value in values:
+            for idx, value in enumerate(values):
                 value = float(value)
-                if self.maxEMG.count() == 250:
-                    self.clearGraphEMG()
+                if idx > 0:
+                    self.rawData.append((self.ecgSample, value, 0, 0, 0, 0))
+                    self.ecgSample += 1
+                    continue
 
                 if self.maxEMG.count() == 0:
                     self.axis_x_emg.setMin(self.ecgSample)
-                    #self.axis_x_emg.setMin(timenow)
                     self.minValueEMG = value
                     self.maxValueEMG = value
 
-                #self.rawData.append((timenow.time().toString("HH:mm:ss:zz"), value, 0, 0))
-                self.rawData.append((self.ecgSample, value, 0, 0, 0, 0))
+                elif self.maxEMG.count() == CHART_MAX_SAMPLES:
+                    self.clearGraphEMG()
+
                 self.maxEMG.append(self.ecgSample, value)
                 self.axis_x_emg.setMax(self.ecgSample)
-                #self.axis_x_emg.setMax(timenow)
                 self.ecgSample += 1
 
                 if value < self.minValueEMG:
@@ -211,17 +202,21 @@ class MyWindow(Ui_MainWindow):
                 self.axis_y_emg.setMin(self.minValueEMG)
 
         elif cmd == 'B':
-            for value in values:
+            for idx, value in enumerate(values):
                 value = float(value)
-                if self.maxBIOZ.count() == 250:
-                    self.clearGraphBIOZ()
+                if idx > 0:
+                    self.rawData.append((0, 0, self.biozSample, value, 0, 0))
+                    self.biozSample += 1
+                    continue
 
                 if self.maxBIOZ.count() == 0:
                     self.axis_x_bioz.setMin(self.biozSample)
                     self.minValueBIOZ = value
                     self.maxValueBIOZ = value
 
-                self.rawData.append((0, 0, self.biozSample, value, 0, 0))
+                elif self.maxBIOZ.count() == CHART_MAX_SAMPLES:
+                    self.clearGraphBIOZ()
+
                 self.maxBIOZ.append(self.biozSample, value)
                 self.axis_x_bioz.setMax(self.biozSample)
                 self.biozSample += 1
@@ -235,17 +230,21 @@ class MyWindow(Ui_MainWindow):
                 self.axis_y_bioz.setMin(self.minValueBIOZ)
 
         elif cmd == 'M':
-            for value in values:
+            for idx, value in enumerate(values):
                 value = float(value)
-                if self.maxMMG.count() == 250:
-                    self.clearGraphMMG()
-
+                if idx > 0:
+                    self.rawData.append((0, 0, 0, 0, self.mmgSample, value))
+                    self.mmgSample += 1
+                    continue
+                
                 if self.maxMMG.count() == 0:
                     self.axis_x_mmg.setMin(self.mmgSample)
                     self.minValueMMG = value
                     self.maxValueMMG = value
 
-                self.rawData.append((0, 0, 0, 0, self.mmgSample, value))
+                elif self.maxMMG.count() == CHART_MAX_SAMPLES:
+                    self.clearGraphMMG()
+
                 self.maxMMG.append(self.mmgSample, value)
                 self.axis_x_mmg.setMax(self.mmgSample)
                 self.mmgSample += 1
@@ -264,6 +263,7 @@ class MyWindow(Ui_MainWindow):
         self.maxBIOZ.clear()
         self.maxMMG.clear()
         self.rawData.clear()
+        self.rawData.append(("ecg smp", "ecg val", "bioz smp", "bioz val", "mmg smp", "mmg val"))
         self.minValueEMG    = 0
         self.maxValueEMG    = 0
         self.minValueBIOZ   = 0
@@ -276,27 +276,34 @@ class MyWindow(Ui_MainWindow):
 
     def clearGraphEMG(self):
         self.maxEMG.clear()
+        self.axis_x_emg.setMin(self.ecgSample)
         self.minValueEMG    = 0
         self.maxValueEMG    = 0
+        self.saveBckpFile()
 
 
     def clearGraphBIOZ(self):
         self.maxBIOZ.clear()
+        self.axis_x_bioz.setMin(self.biozSample)
         self.minValueBIOZ   = 0
         self.maxValueBIOZ   = 0
+        self.saveBckpFile()
+
 
     def clearGraphMMG(self):
         self.maxMMG.clear()
+        self.axis_x_mmg.setMin(self.mmgSample)
         self.minValueMMG    = 0
         self.maxValueMMG    = 0
+        self.saveBckpFile()
 
 
-    def startMeasurement(self): 
+    def startMeasurement(self):
+        self.saveBckpFile() 
         self.ser.flush()
         self.ser.flushInput()           
         self.serThreadRdy = True
         
-
 
     def stopMeasurement(self):
         self.serThreadRdy = False
@@ -312,7 +319,7 @@ class MyWindow(Ui_MainWindow):
                     recData = self.ser.readline().decode('utf-8')
                     cmd = recData.split('#')[1][0]
                     values = (recData.split('#')[1][1:].split(',')[1:])
-                    #print(values)    
+                    print(values)    
                     self.create_linechart(cmd, values)                
                 except Exception as err:
                     print("corrupted data...")
@@ -375,6 +382,17 @@ class MyWindow(Ui_MainWindow):
             print("CSV saved")
         except:
             print("Failed to save CSV")
+
+    def saveBckpFile(self):
+        try:
+            with open("backup.csv", 'w', encoding='UTF8', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(self.rawData)
+
+            print("CSV saved")
+        except:
+            print("Failed to save CSV")
+
 
 
 if __name__ == "__main__":
