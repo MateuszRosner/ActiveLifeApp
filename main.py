@@ -190,6 +190,7 @@ class MyWindow(Ui_MainWindow):
                     self.clearGraphEMG()
 
                 self.maxEMG.append(self.ecgSample, value)
+                self.rawData.append((self.ecgSample, value, 0, 0, 0, 0))
                 self.axis_x_emg.setMax(self.ecgSample)
                 self.ecgSample += 1
 
@@ -218,6 +219,7 @@ class MyWindow(Ui_MainWindow):
                     self.clearGraphBIOZ()
 
                 self.maxBIOZ.append(self.biozSample, value)
+                self.rawData.append((0, 0, self.biozSample, value, 0, 0))
                 self.axis_x_bioz.setMax(self.biozSample)
                 self.biozSample += 1
 
@@ -246,6 +248,7 @@ class MyWindow(Ui_MainWindow):
                     self.clearGraphMMG()
 
                 self.maxMMG.append(self.mmgSample, value)
+                self.rawData.append((0, 0, 0, 0, self.mmgSample, value))
                 self.axis_x_mmg.setMax(self.mmgSample)
                 self.mmgSample += 1
 
@@ -263,7 +266,7 @@ class MyWindow(Ui_MainWindow):
         self.maxBIOZ.clear()
         self.maxMMG.clear()
         self.rawData.clear()
-        self.rawData.append(("ecg smp", "ecg val", "bioz smp", "bioz val", "mmg smp", "mmg val"))
+        self.rawData.append(("emg smp", "emg val", "bioz smp", "bioz val", "mmg smp", "mmg val"))
         self.minValueEMG    = 0
         self.maxValueEMG    = 0
         self.minValueBIOZ   = 0
@@ -317,7 +320,9 @@ class MyWindow(Ui_MainWindow):
                 str: cmd
                 try:
                     recData = self.ser.readline().decode('utf-8')
+                    # recData = recData.removesuffix("\r\n")
                     cmd = recData.split('#')[1][0]
+
                     values = (recData.split('#')[1][1:].split(',')[1:])
                     print(values)    
                     self.create_linechart(cmd, values)                
