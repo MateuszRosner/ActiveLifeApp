@@ -57,7 +57,7 @@ class MyWindow(Ui_MainWindow):
 
         self.chartDataMMG = QChart()
         self.axis_y_mmg = QValueAxis()
-        self.axis_y_mmg.setTitleText('vlaue')
+        self.axis_y_mmg.setTitleText('Value')
 
         self.axis_x_emg = QValueAxis()
         self.axis_x_emg.setTitleText('Sample')
@@ -117,8 +117,6 @@ class MyWindow(Ui_MainWindow):
         self.GraphMMG.setChart(self.chartDataMMG)
 
         self.max30001 = max_setup.max30001()
-        #self.updateBIOZSettings()
-        #self.updateECGSettings()
 
     # --------------- signals - slots config ---------------
         self.pushButtonConnect.clicked.connect(self.openPort)
@@ -127,21 +125,9 @@ class MyWindow(Ui_MainWindow):
         self.pushButtonClearGraph.clicked.connect(self.clearGraph)
         self.pushButtonSave.clicked.connect(self.saveFile)
         self.pushButtonSet.clicked.connect(self.setActualSettings)
-        #self.graphTimer.timeout.connect(self.create_linechart)
-        #self.comboBoxEMGGAIN.currentTextChanged.connect(self.updateECGSettings)
-        #self.comboBoxEMGLPF.currentTextChanged.connect(self.updateECGSettings)
-        #self.comboBoxEMGHPF.currentTextChanged.connect(self.updateECGSettings)
-        #self.comboBoxEMGRATE.currentTextChanged.connect(self.updateECGSettings)
-        #self.comboBoxBIOZCURRMAG.currentTextChanged.connect(self.updateBIOZSettings)
-        #self.comboBoxBIOZCURRFREQ.currentTextChanged.connect(self.updateBIOZSettings)
-        #self.comboBoxBIOZHPF.currentTextChanged.connect(self.updateBIOZSettings)
-        #self.comboBoxBIOZLPF.currentTextChanged.connect(self.updateBIOZSettings)
-        #self.comboBoxBIOZGAIN.currentTextChanged.connect(self.updateBIOZSettings)
-        #self.comboBoxBIOZRATE.currentTextChanged.connect(self.updateBIOZSettings)
         self.radioButtonBIOZMeasure.clicked.connect(self.updateMeasureType)
         self.radioButtonEMGMeasure.clicked.connect(self.updateMeasureType)
         self.radioButtonEMG_BIOZ.clicked.connect(self.updateMeasureType)
-        #self.horizontalSliderRatio.valueChanged.connect(self.updateRatio)
 
     def openPort(self):
         if self.comboBoxPorts.currentText() != None:
