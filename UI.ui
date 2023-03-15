@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>410</y>
-      <width>151</width>
+      <width>191</width>
       <height>22</height>
      </rect>
     </property>
@@ -27,9 +27,9 @@
    <widget class="QPushButton" name="pushButtonConnect">
     <property name="geometry">
      <rect>
-      <x>50</x>
+      <x>40</x>
       <y>440</y>
-      <width>71</width>
+      <width>131</width>
       <height>23</height>
      </rect>
     </property>
@@ -42,7 +42,7 @@
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>151</width>
+      <width>191</width>
       <height>371</height>
      </rect>
     </property>
@@ -93,7 +93,7 @@
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>131</width>
+       <width>171</width>
        <height>22</height>
       </rect>
      </property>
@@ -129,7 +129,7 @@
       <rect>
        <x>10</x>
        <y>170</y>
-       <width>131</width>
+       <width>171</width>
        <height>31</height>
       </rect>
      </property>
@@ -142,7 +142,7 @@
       <rect>
        <x>10</x>
        <y>210</y>
-       <width>131</width>
+       <width>171</width>
        <height>31</height>
       </rect>
      </property>
@@ -155,7 +155,7 @@
       <rect>
        <x>10</x>
        <y>250</y>
-       <width>131</width>
+       <width>171</width>
        <height>31</height>
       </rect>
      </property>
@@ -168,7 +168,7 @@
       <rect>
        <x>10</x>
        <y>290</y>
-       <width>131</width>
+       <width>171</width>
        <height>31</height>
       </rect>
      </property>
@@ -181,7 +181,7 @@
       <rect>
        <x>10</x>
        <y>330</y>
-       <width>131</width>
+       <width>171</width>
        <height>31</height>
       </rect>
      </property>
@@ -190,32 +190,32 @@
      </property>
     </widget>
    </widget>
-   <widget class="QChartView" name="GraphEMG" native="true">
+   <widget class="QChartView" name="Graph1" native="true">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>210</x>
       <y>10</y>
-      <width>1011</width>
+      <width>971</width>
       <height>281</height>
      </rect>
     </property>
    </widget>
-   <widget class="QChartView" name="GraphBIOZ" native="true">
+   <widget class="QChartView" name="Graph2" native="true">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>210</x>
       <y>300</y>
-      <width>1011</width>
+      <width>971</width>
       <height>281</height>
      </rect>
     </property>
    </widget>
-   <widget class="QChartView" name="GraphMMG" native="true">
+   <widget class="QChartView" name="Graph3" native="true">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>210</x>
       <y>590</y>
-      <width>1011</width>
+      <width>971</width>
       <height>281</height>
      </rect>
     </property>
@@ -223,7 +223,7 @@
    <widget class="QLabel" name="labelDevice_3">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>60</x>
       <y>380</y>
       <width>101</width>
       <height>21</height>
@@ -241,7 +241,7 @@
      <rect>
       <x>10</x>
       <y>480</y>
-      <width>151</width>
+      <width>191</width>
       <height>371</height>
      </rect>
     </property>
@@ -251,7 +251,7 @@
     <widget class="QLabel" name="labelDevice_6">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>30</x>
        <y>20</y>
        <width>131</width>
        <height>21</height>
@@ -267,7 +267,7 @@
     <widget class="QComboBox" name="comboBoxChart1">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>30</x>
        <y>40</y>
        <width>131</width>
        <height>22</height>
@@ -277,7 +277,7 @@
     <widget class="QComboBox" name="comboBoxChart2">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>30</x>
        <y>100</y>
        <width>131</width>
        <height>22</height>
@@ -287,7 +287,7 @@
     <widget class="QLabel" name="labelDevice_7">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>30</x>
        <y>80</y>
        <width>131</width>
        <height>21</height>
@@ -303,7 +303,7 @@
     <widget class="QComboBox" name="comboBoxChart3">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>30</x>
        <y>160</y>
        <width>131</width>
        <height>22</height>
@@ -313,7 +313,7 @@
     <widget class="QLabel" name="labelDevice_8">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>30</x>
        <y>140</y>
        <width>131</width>
        <height>21</height>

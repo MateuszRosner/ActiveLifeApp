@@ -34,89 +34,167 @@ class MyWindow(Ui_MainWindow):
 
         self.graphTimer          = QtCore.QTimer()
 
-        self.maxValueEMG    = 0.0
-        self.maxValueBIOZ   = 0.0
-        self.minValueEMG    = 0.0
-        self.minValueBIOZ   = 0.0
-        self.minValueMMG    = 0.0
-        self.maxValueMMG    = 0.0
+        self.maxValueEMG_0    = 0.0
+        self.maxValueBIO_0    = 0.0
+        self.minValueEMG_0    = 0.0
+        self.minValueBIOZ_0   = 0.0
+        self.minValueMMG_0    = 0.0
+        self.maxValueMMG_0    = 0.0
+        self.maxValueEMG_1    = 0.0
+        self.maxValueBIO_1    = 0.0
+        self.minValueEMG_1    = 0.0
+        self.minValueBIOZ_1   = 0.0
+        self.minValueMMG_1    = 0.0
+        self.maxValueMMG_1    = 0.0
         self.rawData = []
         self.rawData.append(("ecg smp", "ecg val", "bioz smp", "bioz val", "mmg smp", "mmg val"))
-        self.ecgSample    = 0
-        self.biozSample   = 0
-        self.mmgSample    = 0
+        self.ecgSample_0    = 0
+        self.biozSample_0   = 0
+        self.mmgSample_0    = 0
+        self.ecgSample_1    = 0
+        self.biozSample_1   = 0
+        self.mmgSample_1    = 0
 
         # --------------- chart settings ---------------
-        self.chartDataEMG = QChart()
-        self.axis_y_emg = QValueAxis()
-        self.axis_y_emg.setTitleText("mV")
+        self.chartDataEMG_0 = QChart()
+        self.axis_y_emg_0 = QValueAxis()
+        self.axis_y_emg_0.setTitleText("mV")
+
+        self.chartDataEMG_1 = QChart()
+        self.axis_y_emg_1 = QValueAxis()
+        self.axis_y_emg_1.setTitleText("mV")
         
-        self.chartDataBIOZ = QChart()
-        self.axis_y_bioz = QValueAxis()
-        self.axis_y_bioz.setTitleText('Ohm')
+        self.chartDataBIOZ_0 = QChart()
+        self.axis_y_bioz_0 = QValueAxis()
+        self.axis_y_bioz_0.setTitleText('Ohm')
 
-        self.chartDataMMG = QChart()
-        self.axis_y_mmg = QValueAxis()
-        self.axis_y_mmg.setTitleText('Value')
+        self.chartDataBIOZ_1 = QChart()
+        self.axis_y_bioz_1 = QValueAxis()
+        self.axis_y_bioz_1.setTitleText('Ohm')
 
-        self.axis_x_emg = QValueAxis()
-        self.axis_x_emg.setTitleText('Sample')
+        self.chartDataMMG_0 = QChart()
+        self.axis_y_mmg_0 = QValueAxis()
+        self.axis_y_mmg_0.setTitleText('Value')
 
-        self.axis_x_bioz = QValueAxis()
-        self.axis_x_bioz.setTitleText('Sample')
+        self.chartDataMMG_1 = QChart()
+        self.axis_y_mmg_1 = QValueAxis()
+        self.axis_y_mmg_1.setTitleText('Value')
 
-        self.axis_x_mmg = QValueAxis()
-        self.axis_x_mmg.setTitleText('Sample')
+        self.axis_x_emg_0 = QValueAxis()
+        self.axis_x_emg_0.setTitleText('Sample')
 
-        self.maxEMG = QLineSeries(self.MainWindow)
-        self.maxEMG.setName("EMG")
+        self.axis_x_emg_1 = QValueAxis()
+        self.axis_x_emg_1.setTitleText('Sample')
 
-        self.maxBIOZ = QLineSeries(self.MainWindow)
-        self.maxBIOZ.setName("BIOZ")
+        self.axis_x_bioz_0 = QValueAxis()
+        self.axis_x_bioz_0.setTitleText('Sample')
 
-        self.maxMMG = QLineSeries(self.MainWindow)
-        self.maxMMG.setName("MMG")
+        self.axis_x_bioz_1 = QValueAxis()
+        self.axis_x_bioz_1.setTitleText('Sample')
 
-        self.chartDataEMG.addSeries(self.maxEMG)
-        self.chartDataEMG.setAnimationOptions(QChart.NoAnimation)
-        self.chartDataEMG.setTitle("MAX30001")
-        self.chartDataEMG.legend().setVisible(True)
-        self.chartDataEMG.legend().setAlignment(Qt.AlignBottom)
-        self.chartDataEMG.addAxis(self.axis_y_emg, QtCore.Qt.AlignLeft)
-        self.chartDataEMG.addAxis(self.axis_x_emg, QtCore.Qt.AlignBottom)
+        self.axis_x_mmg_0 = QValueAxis()
+        self.axis_x_mmg_0.setTitleText('Sample')
 
-        self.maxEMG.attachAxis(self.axis_x_emg)
-        self.maxEMG.attachAxis(self.axis_y_emg)
+        self.axis_x_mmg_1 = QValueAxis()
+        self.axis_x_mmg_1.setTitleText('Sample')
 
-        self.GraphEMG.setChart(self.chartDataEMG)
+        self.maxEMG_0 = QLineSeries(self.MainWindow)
+        self.maxEMG_0.setName("EMG")
 
-        self.chartDataBIOZ.addSeries(self.maxBIOZ)
-        self.chartDataBIOZ.setAnimationOptions(QChart.NoAnimation)
-        self.chartDataBIOZ.setTitle("MAX30001")
-        self.chartDataBIOZ.legend().setVisible(True)
-        self.chartDataBIOZ.legend().setAlignment(Qt.AlignBottom)
-        self.chartDataBIOZ.addAxis(self.axis_y_bioz, QtCore.Qt.AlignLeft)
-        self.chartDataBIOZ.addAxis(self.axis_x_bioz, QtCore.Qt.AlignBottom)
+        self.maxEMG_1 = QLineSeries(self.MainWindow)
+        self.maxEMG_1.setName("EMG")
 
-        self.maxBIOZ.attachAxis(self.axis_x_bioz)
-        self.maxBIOZ.attachAxis(self.axis_y_bioz)
+        self.maxBIOZ_0 = QLineSeries(self.MainWindow)
+        self.maxBIOZ_0.setName("BIOZ")
 
-        self.GraphBIOZ.setChart(self.chartDataBIOZ)
+        self.maxBIOZ_1 = QLineSeries(self.MainWindow)
+        self.maxBIOZ_1.setName("BIOZ")
 
-        self.chartDataMMG.addSeries(self.maxMMG)
-        self.chartDataMMG.setAnimationOptions(QChart.NoAnimation)
-        self.chartDataMMG.setTitle("MAX30001")
-        self.chartDataMMG.legend().setVisible(True)
-        self.chartDataMMG.legend().setAlignment(Qt.AlignBottom)
-        self.chartDataMMG.addAxis(self.axis_y_mmg, QtCore.Qt.AlignLeft)
-        self.chartDataMMG.addAxis(self.axis_x_mmg, QtCore.Qt.AlignBottom)
+        self.maxMMG_0 = QLineSeries(self.MainWindow)
+        self.maxMMG_0.setName("MMG")
 
-        self.maxMMG.attachAxis(self.axis_x_mmg)
-        self.maxMMG.attachAxis(self.axis_y_mmg)
+        self.maxMMG_1 = QLineSeries(self.MainWindow)
+        self.maxMMG_1.setName("MMG")
 
-        self.GraphMMG.setChart(self.chartDataMMG)
+        self.chartDataEMG_0.addSeries(self.maxEMG_0)
+        self.chartDataEMG_0.setAnimationOptions(QChart.NoAnimation)
+        self.chartDataEMG_0.setTitle("MADx")
+        self.chartDataEMG_0.legend().setVisible(True)
+        self.chartDataEMG_0.legend().setAlignment(Qt.AlignBottom)
+        self.chartDataEMG_0.addAxis(self.axis_y_emg_0, QtCore.Qt.AlignLeft)
+        self.chartDataEMG_0.addAxis(self.axis_x_emg_0, QtCore.Qt.AlignBottom)
+
+        self.chartDataEMG_1.addSeries(self.maxEMG_1)
+        self.chartDataEMG_1.setAnimationOptions(QChart.NoAnimation)
+        self.chartDataEMG_1.setTitle("MADx")
+        self.chartDataEMG_1.legend().setVisible(True)
+        self.chartDataEMG_1.legend().setAlignment(Qt.AlignBottom)
+        self.chartDataEMG_1.addAxis(self.axis_y_emg_1, QtCore.Qt.AlignLeft)
+        self.chartDataEMG_1.addAxis(self.axis_x_emg_1, QtCore.Qt.AlignBottom)
+
+        self.maxEMG_0.attachAxis(self.axis_x_emg_0)
+        self.maxEMG_0.attachAxis(self.axis_y_emg_0)
+
+        self.maxEMG_1.attachAxis(self.axis_x_emg_1)
+        self.maxEMG_1.attachAxis(self.axis_y_emg_1)
+
+        self.Graph1.setChart(self.chartDataEMG_0)
+
+        self.chartDataBIOZ_0.addSeries(self.maxBIOZ_0)
+        self.chartDataBIOZ_0.setAnimationOptions(QChart.NoAnimation)
+        self.chartDataBIOZ_0.setTitle("MAX30001")
+        self.chartDataBIOZ_0.legend().setVisible(True)
+        self.chartDataBIOZ_0.legend().setAlignment(Qt.AlignBottom)
+        self.chartDataBIOZ_0.addAxis(self.axis_y_bioz_0, QtCore.Qt.AlignLeft)
+        self.chartDataBIOZ_0.addAxis(self.axis_x_bioz_0, QtCore.Qt.AlignBottom)
+
+        self.chartDataBIOZ_1.addSeries(self.maxBIOZ_1)
+        self.chartDataBIOZ_1.setAnimationOptions(QChart.NoAnimation)
+        self.chartDataBIOZ_1.setTitle("MAX30001")
+        self.chartDataBIOZ_1.legend().setVisible(True)
+        self.chartDataBIOZ_1.legend().setAlignment(Qt.AlignBottom)
+        self.chartDataBIOZ_1.addAxis(self.axis_y_bioz_1, QtCore.Qt.AlignLeft)
+        self.chartDataBIOZ_1.addAxis(self.axis_x_bioz_1, QtCore.Qt.AlignBottom)
+
+        self.maxBIOZ_0.attachAxis(self.axis_x_bioz_0)
+        self.maxBIOZ_0.attachAxis(self.axis_y_bioz_0)
+
+        self.maxBIOZ_1.attachAxis(self.axis_x_bioz_1)
+        self.maxBIOZ_1.attachAxis(self.axis_y_bioz_1)
+
+        self.Graph2.setChart(self.chartDataBIOZ_0)
+
+        self.chartDataMMG_0.addSeries(self.maxMMG_0)
+        self.chartDataMMG_0.setAnimationOptions(QChart.NoAnimation)
+        self.chartDataMMG_0.setTitle("MAX30001")
+        self.chartDataMMG_0.legend().setVisible(True)
+        self.chartDataMMG_0.legend().setAlignment(Qt.AlignBottom)
+        self.chartDataMMG_0.addAxis(self.axis_y_mmg_0, QtCore.Qt.AlignLeft)
+        self.chartDataMMG_0.addAxis(self.axis_x_mmg_0, QtCore.Qt.AlignBottom)
+
+        self.chartDataMMG_1.addSeries(self.maxMMG_1)
+        self.chartDataMMG_1.setAnimationOptions(QChart.NoAnimation)
+        self.chartDataMMG_1.setTitle("MAX30001")
+        self.chartDataMMG_1.legend().setVisible(True)
+        self.chartDataMMG_1.legend().setAlignment(Qt.AlignBottom)
+        self.chartDataMMG_1.addAxis(self.axis_y_mmg_1, QtCore.Qt.AlignLeft)
+        self.chartDataMMG_1.addAxis(self.axis_x_mmg_1, QtCore.Qt.AlignBottom)
+
+        self.maxMMG_0.attachAxis(self.axis_x_mmg_0)
+        self.maxMMG_0.attachAxis(self.axis_y_mmg_0)
+
+        self.maxMMG_1.attachAxis(self.axis_x_mmg_1)
+        self.maxMMG_1.attachAxis(self.axis_y_mmg_1)
+
+        self.Graph3.setChart(self.chartDataMMG_0)
 
         self.max30001 = max_setup.max30001()
+
+        self.comboBoxChart1.addItems(["MAD0 EMG", "MAD0 BIOZ", "MAD0 MMG", "MAD1 EMG", "MAD1 BIOZ", "MAD1 MMG"])
+        self.comboBoxChart2.addItems(["MAD0 EMG", "MAD0 BIOZ", "MAD0 MMG", "MAD1 EMG", "MAD1 BIOZ", "MAD1 MMG"])
+        self.comboBoxChart3.addItems(["MAD0 EMG", "MAD0 BIOZ", "MAD0 MMG", "MAD1 EMG", "MAD1 BIOZ", "MAD1 MMG"])
+
+        self.comboBoxDevice.addItems(["MAD0", "MAD1"])
 
     # --------------- signals - slots config ---------------
         self.pushButtonConnect.clicked.connect(self.openPort)
@@ -128,6 +206,9 @@ class MyWindow(Ui_MainWindow):
         self.radioButtonBIOZMeasure.clicked.connect(self.updateMeasureType)
         self.radioButtonEMGMeasure.clicked.connect(self.updateMeasureType)
         self.radioButtonEMG_BIOZ.clicked.connect(self.updateMeasureType)
+        self.comboBoxChart1.currentTextChanged.connect(self.setChart1)
+        self.comboBoxChart2.currentTextChanged.connect(self.setChart2)
+        self.comboBoxChart3.currentTextChanged.connect(self.setChart3)
 
     def openPort(self):
         if self.comboBoxPorts.currentText() != None:
@@ -163,127 +244,127 @@ class MyWindow(Ui_MainWindow):
             for idx, value in enumerate(values):
                 value = float(value)
                 if idx > 0:
-                    self.rawData.append((self.ecgSample, value, 0, 0, 0, 0))
-                    self.ecgSample += 1
+                    self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0))
+                    self.ecgSample_0 += 1
                     continue
 
-                if self.maxEMG.count() == 0:
-                    self.axis_x_emg.setMin(self.ecgSample)
-                    self.minValueEMG = value
-                    self.maxValueEMG = value
+                if self.maxEMG_0.count() == 0:
+                    self.axis_x_emg_0.setMin(self.ecgSample_0)
+                    self.minValueEMG_0 = value
+                    self.maxValueEMG_0 = value
 
-                elif self.maxEMG.count() == CHART_MAX_SAMPLES:
+                elif self.maxEMG_0.count() == CHART_MAX_SAMPLES:
                     self.clearGraphEMG()
 
-                self.maxEMG.append(self.ecgSample, value)
-                self.rawData.append((self.ecgSample, value, 0, 0, 0, 0))
-                self.axis_x_emg.setMax(self.ecgSample)
-                self.ecgSample += 1
+                self.maxEMG_0.append(self.ecgSample_0, value)
+                self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0))
+                self.axis_x_emg_0.setMax(self.ecgSample_0)
+                self.ecgSample_0 += 1
 
-                if value < self.minValueEMG:
-                    self.minValueEMG = value
-                if value > self.maxValueEMG:
-                    self.maxValueEMG = value
+                if value < self.minValueEMG_0:
+                    self.minValueEMG_0 = value
+                if value > self.maxValueEMG_0:
+                    self.maxValueEMG_0 = value
 
-                self.axis_y_emg.setMax(self.maxValueEMG)
-                self.axis_y_emg.setMin(self.minValueEMG)
+                self.axis_y_emg_0.setMax(self.maxValueEMG_0)
+                self.axis_y_emg_0.setMin(self.minValueEMG_0)
 
         elif cmd == 'B':
             for idx, value in enumerate(values):
                 value = float(value)
                 if idx > 0:
-                    self.rawData.append((0, 0, self.biozSample, value, 0, 0))
-                    self.biozSample += 1
+                    self.rawData.append((0, 0, self.biozSample_0, value, 0, 0))
+                    self.biozSample_0 += 1
                     continue
 
-                if self.maxBIOZ.count() == 0:
-                    self.axis_x_bioz.setMin(self.biozSample)
-                    self.minValueBIOZ = value
-                    self.maxValueBIOZ = value
+                if self.maxBIOZ_0.count() == 0:
+                    self.axis_x_bioz_0.setMin(self.biozSample_0)
+                    self.minValueBIOZ_0 = value
+                    self.maxValueBIOZ_0 = value
 
-                elif self.maxBIOZ.count() == CHART_MAX_SAMPLES:
+                elif self.maxBIOZ_0.count() == CHART_MAX_SAMPLES:
                     self.clearGraphBIOZ()
 
-                self.maxBIOZ.append(self.biozSample, value)
-                self.rawData.append((0, 0, self.biozSample, value, 0, 0))
-                self.axis_x_bioz.setMax(self.biozSample)
-                self.biozSample += 1
+                self.maxBIOZ_0.append(self.biozSample_0, value)
+                self.rawData.append((0, 0, self.biozSample_0, value, 0, 0))
+                self.axis_x_bioz_0.setMax(self.biozSample_0)
+                self.biozSample_0 += 1
 
-                if value < self.minValueBIOZ:
-                    self.minValueBIOZ = value
-                if value > self.maxValueBIOZ:
-                    self.maxValueBIOZ = value
+                if value < self.minValueBIOZ_0:
+                    self.minValueBIOZ_0 = value
+                if value > self.maxValueBIOZ_0:
+                    self.maxValueBIOZ_0 = value
 
-                self.axis_y_bioz.setMax(self.maxValueBIOZ)
-                self.axis_y_bioz.setMin(self.minValueBIOZ)
+                self.axis_y_bioz_0.setMax(self.maxValueBIOZ_0)
+                self.axis_y_bioz_0.setMin(self.minValueBIOZ_0)
 
         elif cmd == 'M':
             for idx, value in enumerate(values):
                 value = float(value)
                 if idx > 0:
-                    self.rawData.append((0, 0, 0, 0, self.mmgSample, value))
-                    self.mmgSample += 1
+                    self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value))
+                    self.mmgSample_0 += 1
                     continue
                 
-                if self.maxMMG.count() == 0:
-                    self.axis_x_mmg.setMin(self.mmgSample)
-                    self.minValueMMG = value
-                    self.maxValueMMG = value
+                if self.maxMMG_0.count() == 0:
+                    self.axis_x_mmg_0.setMin(self.mmgSample_0)
+                    self.minValueMMG_0 = value
+                    self.maxValueMMG_0 = value
 
-                elif self.maxMMG.count() == CHART_MAX_SAMPLES:
+                elif self.maxMMG_0.count() == CHART_MAX_SAMPLES:
                     self.clearGraphMMG()
 
-                self.maxMMG.append(self.mmgSample, value)
-                self.rawData.append((0, 0, 0, 0, self.mmgSample, value))
-                self.axis_x_mmg.setMax(self.mmgSample)
-                self.mmgSample += 1
+                self.maxMMG_0.append(self.mmgSample_0, value)
+                self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value))
+                self.axis_x_mmg_0.setMax(self.mmgSample_0)
+                self.mmgSample_0 += 1
 
-                if value < self.minValueMMG:
-                    self.minValueMMG = value
-                if value > self.maxValueMMG:
-                    self.maxValueMMG = value
+                if value < self.minValueMMG_0:
+                    self.minValueMMG_0 = value
+                if value > self.maxValueMMG_0:
+                    self.maxValueMMG_0 = value
 
-                self.axis_y_mmg.setMax(self.maxValueMMG)
-                self.axis_y_mmg.setMin(self.minValueMMG)
+                self.axis_y_mmg_0.setMax(self.maxValueMMG_0)
+                self.axis_y_mmg_0.setMin(self.minValueMMG_0)
 
 
     def clearGraph(self):
-        self.maxEMG.clear()
-        self.maxBIOZ.clear()
-        self.maxMMG.clear()
+        self.maxEMG_0.clear()
+        self.maxBIOZ_0.clear()
+        self.maxMMG_0.clear()
         self.rawData.clear()
         self.rawData.append(("emg smp", "emg val", "bioz smp", "bioz val", "mmg smp", "mmg val"))
-        self.minValueEMG    = 0
-        self.maxValueEMG    = 0
-        self.minValueBIOZ   = 0
-        self.maxValueBIOZ   = 0
-        self.minValueMMG    = 0
-        self.maxValueMMG    = 0
-        self.ecgSample      = 0
-        self.biozSample     = 0
-        self.mmgSample      = 0
+        self.minValueEMG_0    = 0
+        self.maxValueEMG_0    = 0
+        self.minValueBIOZ_0   = 0
+        self.maxValueBIOZ_0   = 0
+        self.minValueMMG_0    = 0
+        self.maxValueMMG_0    = 0
+        self.ecgSample_0      = 0
+        self.biozSample_0     = 0
+        self.mmgSample_0      = 0
 
     def clearGraphEMG(self):
-        self.maxEMG.clear()
-        self.axis_x_emg.setMin(self.ecgSample)
-        self.minValueEMG    = 0
-        self.maxValueEMG    = 0
+        self.maxEMG_0.clear()
+        self.axis_x_emg_0.setMin(self.ecgSample_0)
+        self.minValueEMG_0    = 0
+        self.maxValueEMG_0    = 0
         self.saveBckpFile()
 
 
     def clearGraphBIOZ(self):
-        self.maxBIOZ.clear()
-        self.axis_x_bioz.setMin(self.biozSample)
-        self.minValueBIOZ   = 0
-        self.maxValueBIOZ   = 0
+        self.maxBIOZ_0.clear()
+        self.axis_x_bioz_0.setMin(self.biozSample_0)
+        self.minValueBIOZ_0   = 0
+        self.maxValueBIOZ_0   = 0
         self.saveBckpFile()
 
 
     def clearGraphMMG(self):
-        self.maxMMG.clear()
-        self.axis_x_mmg.setMin(self.mmgSample)
-        self.minValueMMG    = 0
-        self.maxValueMMG    = 0
+        self.maxMMG_0.clear()
+        self.axis_x_mmg_0.setMin(self.mmgSample_0)
+        self.minValueMMG_0    = 0
+        self.maxValueMMG_0    = 0
         self.saveBckpFile()
 
 
@@ -307,6 +388,7 @@ class MyWindow(Ui_MainWindow):
                 try:
                     recData = self.ser.readline().decode('utf-8')
                     # recData = recData.removesuffix("\r\n")
+                    print(recData)
                     cmd = recData.split('#')[1][0]
 
                     values = (recData.split('#')[1][1:].split(',')[1:])
@@ -383,6 +465,31 @@ class MyWindow(Ui_MainWindow):
             print("CSV saved")
         except:
             print("Failed to save CSV")
+
+    def setChart1(self):
+        
+        if self.comboBoxChart1.currentText() == "MAD0 EMG":
+            self.Graph1.setChart(self.chartDataEMG_0)
+        elif self.comboBoxChart1.currentText() == "MAD0 BIOZ":
+            self.Graph1.setChart(self.chartDataBIOZ_0)
+        elif self.comboBoxChart1.currentText() == "MAD0 MMG":
+            self.Graph1.setChart(self.chartDataMMG_0)
+
+    def setChart2(self):
+        if self.comboBoxChart2.currentText() == "MAD0 EMG":
+            self.Graph2.setChart(self.chartDataEMG_0)
+        elif self.comboBoxChart2.currentText() == "MAD0 BIOZ":
+            self.Graph2.setChart(self.chartDataBIOZ_0)
+        elif self.comboBoxChart2.currentText() == "MAD0 MMG":
+            self.Graph2.setChart(self.chartDataMMG_0)
+
+    def setChart3(self):
+        if self.comboBoxChart3.currentText() == "MAD0 EMG":
+            self.Graph3.setChart(self.chartDataEMG_0)
+        elif self.comboBoxChart3.currentText() == "MAD0 BIOZ":
+            self.Graph3.setChart(self.chartDataBIOZ_0)
+        elif self.comboBoxChart3.currentText() == "MAD0 MMG":
+            self.Graph3.setChart(self.chartDataMMG_0)
 
 
 
