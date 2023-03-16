@@ -467,7 +467,6 @@ class MyWindow(Ui_MainWindow):
             print("Failed to save CSV")
 
     def setChart1(self):
-        
         if self.comboBoxChart1.currentText() == "MAD0 EMG":
             self.Graph1.setChart(self.chartDataEMG_0)
         elif self.comboBoxChart1.currentText() == "MAD0 BIOZ":
