@@ -347,7 +347,7 @@ class MyWindow(Ui_MainWindow):
     def clearGraphEMG(self):
         self.maxEMG_0.clear()
         self.axis_x_emg_0.setMin(self.ecgSample_0)
-        self.minValueEMG_0    = 0
+        #self.minValueEMG_0    = 0
         self.maxValueEMG_0    = 0
         self.saveBckpFile()
 
@@ -355,7 +355,7 @@ class MyWindow(Ui_MainWindow):
     def clearGraphBIOZ(self):
         self.maxBIOZ_0.clear()
         self.axis_x_bioz_0.setMin(self.biozSample_0)
-        self.minValueBIOZ_0   = 0
+        #self.minValueBIOZ_0   = 0
         self.maxValueBIOZ_0   = 0
         self.saveBckpFile()
 
@@ -363,7 +363,7 @@ class MyWindow(Ui_MainWindow):
     def clearGraphMMG(self):
         self.maxMMG_0.clear()
         self.axis_x_mmg_0.setMin(self.mmgSample_0)
-        self.minValueMMG_0    = 0
+        #self.minValueMMG_0    = 0
         self.maxValueMMG_0    = 0
         self.saveBckpFile()
 
