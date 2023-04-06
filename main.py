@@ -5,13 +5,23 @@ import serial
 import serial.tools.list_ports
 import csv
 import max_setup
+import winsound
+import numpy as np
+import scipy.signal as sig
 
 from ui import Ui_MainWindow
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtChart import QChart, QLineSeries, QValueAxis
 from PyQt5.QtCore import Qt
 
+from scipy.signal import find_peaks
+from scipy import integrate
+#import pywt
+
+
 CHART_MAX_SAMPLES = 500
+SOUND_FREQ        = 4000
+SOUND_DURATION    = 500
 
 class MyWindow(Ui_MainWindow):
 # ---------------class init functions---------------
@@ -32,7 +42,12 @@ class MyWindow(Ui_MainWindow):
         self.serialThread        = threading.Thread(target=self.getDataFromSerial)
         self.serialThread.daemon = True
 
-        self.graphTimer          = QtCore.QTimer()
+        self.graphTimer         = QtCore.QTimer()
+        self.trainingTimer      = QtCore.QTimer()
+
+        self.trainingCounter    = 0
+        self.corruptedData      = 0
+        self.packets            = 0
 
         self.maxValueEMG_0    = 0.0
         self.maxValueBIO_0    = 0.0
@@ -209,6 +224,7 @@ class MyWindow(Ui_MainWindow):
         self.comboBoxChart1.currentTextChanged.connect(self.setChart1)
         self.comboBoxChart2.currentTextChanged.connect(self.setChart2)
         self.comboBoxChart3.currentTextChanged.connect(self.setChart3)
+        self.trainingTimer.timeout.connect(self.timerCountTick)
 
     def openPort(self):
         if self.comboBoxPorts.currentText() != None:
@@ -343,6 +359,8 @@ class MyWindow(Ui_MainWindow):
         self.ecgSample_0      = 0
         self.biozSample_0     = 0
         self.mmgSample_0      = 0
+        self.trainingCounter  = 0
+        self.labelTrainingTime.setText(f"{self.trainingCounter} s")
 
     def clearGraphEMG(self):
         self.maxEMG_0.clear()
@@ -355,7 +373,6 @@ class MyWindow(Ui_MainWindow):
     def clearGraphBIOZ(self):
         self.maxBIOZ_0.clear()
         self.axis_x_bioz_0.setMin(self.biozSample_0)
-        #self.minValueBIOZ_0   = 0
         self.maxValueBIOZ_0   = 0
         self.saveBckpFile()
 
@@ -363,20 +380,23 @@ class MyWindow(Ui_MainWindow):
     def clearGraphMMG(self):
         self.maxMMG_0.clear()
         self.axis_x_mmg_0.setMin(self.mmgSample_0)
-        #self.minValueMMG_0    = 0
         self.maxValueMMG_0    = 0
         self.saveBckpFile()
+        self.calcBPM()
 
 
     def startMeasurement(self):
-        self.saveBckpFile() 
-        self.ser.flush()
-        self.ser.flushInput()           
-        self.serThreadRdy = True
+        if self.ser.isOpen() == True:
+            self.saveBckpFile() 
+            self.ser.flush()
+            self.ser.flushInput()           
+            self.serThreadRdy = True
+            self.trainingTimer.start(1000)
         
 
     def stopMeasurement(self):
         self.serThreadRdy = False
+        self.trainingTimer.stop()
 
 
     def getDataFromSerial(self):
@@ -387,17 +407,21 @@ class MyWindow(Ui_MainWindow):
                 str: cmd
                 try:
                     recData = self.ser.readline().decode('utf-8')
-                    # recData = recData.removesuffix("\r\n")
-                    print(recData)
+                    self.packets += 1
                     cmd = recData.split('#')[1][0]
 
                     values = (recData.split('#')[1][1:].split(',')[1:])
                     print(values)    
-                    self.create_linechart(cmd, values)                
+                    self.create_linechart(cmd, values)
+
                 except Exception as err:
                     print("corrupted data...")
                     print(err)
                     self.ser.flushInput()
+                    self.corruptedData += 1
+                    winsound.Beep(duration=SOUND_DURATION, frequency=SOUND_FREQ)
+
+                self.labelPacketLoss.setText("{:.3f} %" .format(self.corruptedData * 100.0 / self.packets))
             else:
                 time.sleep(0.5)
 
@@ -490,6 +514,30 @@ class MyWindow(Ui_MainWindow):
         elif self.comboBoxChart3.currentText() == "MAD0 MMG":
             self.Graph3.setChart(self.chartDataMMG_0)
 
+    def timerCountTick(self):
+        self.trainingCounter += 1
+        self.labelTrainingTime.setText(f"{self.trainingCounter} s")
+
+    def calcBPM(self):
+        fs = 150
+        L = 100 # rząd filtru
+        fdp = sig.firwin(L, 4, window='hamming', pass_zero=True, fs=fs)
+        width = self.spinBoxWidowWidth.Value()
+        MMG = self.self.maxMMG_0[-width:]
+        MMG = MMG - np.mean(MMG) # usunięcie składowe DC
+        MMG = MMG * -1
+        MMG_int = integrate.cumtrapz(MMG, initial=0) # calkowanie sygnalu
+        MMG_filtr = sig.lfilter(fdp, 1, MMG) # filtracja LP 4Hz
+        MMG_filtr = sig.lfilter(fdp, 1, MMG_filtr) # filtracja LP 4Hz
+        MMG_int = MMG_filtr #integrate.cumtrapz(MMG_filtr, initial=0) # calkowanie sygnalu
+        MMG_corr = sig.correlate(MMG_int, MMG_int) # autokorelacja
+        MMG_corr = MMG_corr[len(MMG_corr)//2:] # przesuniecie od max, ograniczenie danych
+        MMG_corr = MMG_corr / MMG_corr[0] # normalizacja
+
+        peaks_corr, _ = find_peaks(MMG_corr, distance=50)
+        Pulse = 60 / (peaks_corr[0] * 1/fs)
+
+        self.labelHR.setText(f"{Pulse} BMP")
 
 
 if __name__ == "__main__":
