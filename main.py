@@ -19,7 +19,7 @@ from scipy import integrate
 #import pywt
 
 
-CHART_MAX_SAMPLES = 500
+CHART_MAX_SAMPLES = 250
 SOUND_FREQ        = 4000
 SOUND_DURATION    = 500
 
@@ -69,6 +69,8 @@ class MyWindow(Ui_MainWindow):
         self.ecgSample_1    = 0
         self.biozSample_1   = 0
         self.mmgSample_1    = 0
+
+        self.bpmSamples     = []
 
         # --------------- chart settings ---------------
         self.chartDataEMG_0 = QChart()
@@ -320,6 +322,7 @@ class MyWindow(Ui_MainWindow):
                 if idx > 0:
                     self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value))
                     self.mmgSample_0 += 1
+                    self.bpmSamples.append(value)
                     continue
                 
                 if self.maxMMG_0.count() == 0:
@@ -331,6 +334,7 @@ class MyWindow(Ui_MainWindow):
                     self.clearGraphMMG()
 
                 self.maxMMG_0.append(self.mmgSample_0, value)
+                self.bpmSamples.append(value)
                 self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value))
                 self.axis_x_mmg_0.setMax(self.mmgSample_0)
                 self.mmgSample_0 += 1
@@ -378,11 +382,13 @@ class MyWindow(Ui_MainWindow):
 
 
     def clearGraphMMG(self):
+        self.calcBPM()
         self.maxMMG_0.clear()
+        self.bpmSamples.clear()
         self.axis_x_mmg_0.setMin(self.mmgSample_0)
         self.maxValueMMG_0    = 0
         self.saveBckpFile()
-        self.calcBPM()
+        
 
 
     def startMeasurement(self):
@@ -522,8 +528,8 @@ class MyWindow(Ui_MainWindow):
         fs = 150
         L = 100 # rząd filtru
         fdp = sig.firwin(L, 4, window='hamming', pass_zero=True, fs=fs)
-        width = self.spinBoxWidowWidth.Value()
-        MMG = self.self.maxMMG_0[-width:]
+        width = self.spinBoxWidowWidth.value()
+        MMG = self.bpmSamples[-width:]
         MMG = MMG - np.mean(MMG) # usunięcie składowe DC
         MMG = MMG * -1
         MMG_int = integrate.cumtrapz(MMG, initial=0) # calkowanie sygnalu
@@ -535,9 +541,9 @@ class MyWindow(Ui_MainWindow):
         MMG_corr = MMG_corr / MMG_corr[0] # normalizacja
 
         peaks_corr, _ = find_peaks(MMG_corr, distance=50)
-        Pulse = 60 / (peaks_corr[0] * 1/fs)
+        pulse = 60 / (peaks_corr[0] * 1/fs)
 
-        self.labelHR.setText(f"{Pulse} BMP")
+        self.labelHR.setText("{:.2f} bpm" .format(pulse))
 
 
 if __name__ == "__main__":
