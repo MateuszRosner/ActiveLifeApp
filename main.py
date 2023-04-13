@@ -8,6 +8,7 @@ import max_setup
 import winsound
 import numpy as np
 import scipy.signal as sig
+import struct
 
 from ui import Ui_MainWindow
 from PyQt5 import QtCore, QtWidgets
@@ -35,11 +36,11 @@ class MyWindow(Ui_MainWindow):
             parity      =  serial.PARITY_NONE,
             stopbits    =  serial.STOPBITS_ONE,
             bytesize    =  serial.EIGHTBITS,
-            timeout     =  0.5)
+            timeout     =  0.1)
 
         self.serThreadRdy = False
         
-        self.serialThread        = threading.Thread(target=self.getDataFromSerial)
+        self.serialThread        = threading.Thread(target=self.getRawFromSerial)
         self.serialThread.daemon = True
 
         self.graphTimer         = QtCore.QTimer()
@@ -418,6 +419,41 @@ class MyWindow(Ui_MainWindow):
 
                     values = (recData.split('#')[1][1:].split(',')[1:])
                     print(values)    
+                    self.create_linechart(cmd, values)
+
+                except Exception as err:
+                    print("corrupted data...")
+                    print(err)
+                    self.ser.flushInput()
+                    self.corruptedData += 1
+                    winsound.Beep(duration=SOUND_DURATION, frequency=SOUND_FREQ)
+
+                self.labelPacketLoss.setText("{:.3f} %" .format(self.corruptedData * 100.0 / self.packets))
+            else:
+                time.sleep(0.5)
+    
+    def getRawFromSerial(self):
+        print("[INFO] Serial thread started!")
+        while True:
+            if self.serThreadRdy == True:
+                values = []
+                recData : bytearray
+                str: cmd
+                try:
+                    recData = self.ser.read(67)
+                    self.packets += 1
+                    cmd = chr(recData[2])
+                    rawData = bytearray(recData[3:])
+
+                    if (cmd == 'E'):
+                        for x in range(len(rawData)//4):
+                            values.append(struct.unpack('f', rawData[((x)*4):(x)*4+4])[0])
+
+                    elif cmd == 'M':
+                        for x in range(len(rawData)//2):
+                            values.append(struct.unpack('i', rawData[((x)*2):(x)*2+2])[0])
+                    print(values)
+  
                     self.create_linechart(cmd, values)
 
                 except Exception as err:
