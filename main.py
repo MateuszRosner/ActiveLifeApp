@@ -689,7 +689,7 @@ class MyWindow(Ui_MainWindow):
                     for x in range(len(rawData)//4):
                             FloatValues.append(struct.unpack('f', rawData[((x)*4):(x)*4+4])[0])
 
-                    self.create_linechart(cmd, FloatValues)
+                    self.create_linechart(cmd, FloatValues, mad=0)
 
                     rawData = mmgData
 
@@ -748,10 +748,14 @@ class MyWindow(Ui_MainWindow):
                     self.corruptedData += 1
                     winsound.Beep(duration=SOUND_DURATION, frequency=SOUND_FREQ)
 
-    def MsgSend(self,msg_send):
+    def MsgSend(self,msg_send, mad):
         msg_header = f'{len(msg_send):<{HEADER_SIZE}}'
-        self.s.send(msg_header.encode('utf-8') + msg_send.encode('utf-8'))
-        print("wysłane")
+        if mad == 0:
+            self.s0.send(msg_header.encode('utf-8') + msg_send.encode('utf-8'))
+        elif mad == 1:
+            self.s1.send(msg_header.encode('utf-8') + msg_send.encode('utf-8'))
+        
+        print(f"Config sent to MAD{mad}")
 
     def openPort(self):
         if self.comboBoxPorts.currentText() != None:
