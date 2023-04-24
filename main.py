@@ -19,6 +19,16 @@ from scipy.signal import find_peaks
 from scipy import integrate
 #import pywt
 
+import socket
+import threading
+import sys
+
+HOST_NAME = socket.gethostname()
+HOST_IP         = '192.168.1.36'
+HOST_PORT_0     = 1025
+HOST_PORT_1     = 1026
+HEADER_SIZE     = 8
+
 
 CHART_MAX_SAMPLES = 250
 SOUND_FREQ        = 4000
@@ -38,10 +48,17 @@ class MyWindow(Ui_MainWindow):
             bytesize    =  serial.EIGHTBITS,
             timeout     =  0.1)
 
-        self.serThreadRdy = False
+        self.serThreadRdy        = False
+        self.serverThreadRdy     = False
         
         self.serialThread        = threading.Thread(target=self.getRawFromSerial)
         self.serialThread.daemon = True
+
+        self.serverThread0        = threading.Thread(target=self.MsgRecv0)
+        self.serverThread0.daemon = True
+
+        self.serverThread1        = threading.Thread(target=self.MsgRecv1)
+        self.serverThread1.daemon = True
 
         self.graphTimer         = QtCore.QTimer()
         self.trainingTimer      = QtCore.QTimer()
@@ -228,17 +245,8 @@ class MyWindow(Ui_MainWindow):
         self.comboBoxChart2.currentTextChanged.connect(self.setChart2)
         self.comboBoxChart3.currentTextChanged.connect(self.setChart3)
         self.trainingTimer.timeout.connect(self.timerCountTick)
-
-    def openPort(self):
-        if self.comboBoxPorts.currentText() != None:
-            self.ser.port = self.comboBoxPorts.currentText().split(" ")[0]
-            print(self.comboBoxPorts.currentText().split(" ")[0])
-            try:
-                self.ser.open()
-                self.serialThread.start()
-            except:
-                print("[ERROR] Can't open serial port...")
-
+        
+        self.serverConnected = False
 
     def listSerialPorts(self):
         ports = serial.tools.list_ports.comports()
@@ -246,6 +254,8 @@ class MyWindow(Ui_MainWindow):
         for port, desc, hwid in sorted(ports):
                 print("{}: {}".format(port, desc))
                 self.comboBoxPorts.addItem(port+" "+desc)
+
+        self.comboBoxPorts.addItem('Base Station')
 
 
     def getActualSettings(self):
@@ -256,37 +266,66 @@ class MyWindow(Ui_MainWindow):
         if self.ser.isOpen():
             self.ser.write(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'))
             print(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'))
+        
 
 
-    def create_linechart(self, cmd, values):
+    def create_linechart(self, cmd, values, mad=0):
         if cmd == 'E':
             for idx, value in enumerate(values):
                 value = float(value)
                 if idx > 0:
+                    if mad == 0:
+                        self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0))
+                        self.ecgSample_0 += 1
+                        continue
+                    elif mad == 1:
+                        self.rawData.append((self.ecgSample_1, value, 0, 0, 0, 0))
+                        self.ecgSample_1 += 1
+                        continue
+                if mad == 0: 
+
+                    if self.maxEMG_0.count() == 0:
+                        self.axis_x_emg_0.setMin(self.ecgSample_0)
+                        self.minValueEMG_0 = value
+                        self.maxValueEMG_0 = value
+
+                    elif self.maxEMG_0.count() == CHART_MAX_SAMPLES:
+                        self.clearGraphEMG()
+
+                    self.maxEMG_0.append(self.ecgSample_0, value)
                     self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0))
+                    self.axis_x_emg_0.setMax(self.ecgSample_0)
                     self.ecgSample_0 += 1
-                    continue
 
-                if self.maxEMG_0.count() == 0:
-                    self.axis_x_emg_0.setMin(self.ecgSample_0)
-                    self.minValueEMG_0 = value
-                    self.maxValueEMG_0 = value
+                    if value < self.minValueEMG_0:
+                        self.minValueEMG_0 = value
+                    if value > self.maxValueEMG_0:
+                        self.maxValueEMG_0 = value
 
-                elif self.maxEMG_0.count() == CHART_MAX_SAMPLES:
-                    self.clearGraphEMG()
+                    self.axis_y_emg_0.setMax(self.maxValueEMG_0)
+                    self.axis_y_emg_0.setMin(self.minValueEMG_0)
 
-                self.maxEMG_0.append(self.ecgSample_0, value)
-                self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0))
-                self.axis_x_emg_0.setMax(self.ecgSample_0)
-                self.ecgSample_0 += 1
+                elif mad == 1:
+                    if self.maxEMG_1.count() == 0:
+                        self.axis_x_emg_1.setMin(self.ecgSample_1)
+                        self.minValueEMG_1 = value
+                        self.maxValueEMG_1 = value
 
-                if value < self.minValueEMG_0:
-                    self.minValueEMG_0 = value
-                if value > self.maxValueEMG_0:
-                    self.maxValueEMG_0 = value
+                    elif self.maxEMG_1.count() == CHART_MAX_SAMPLES:
+                        self.clearGraphEMG()
 
-                self.axis_y_emg_0.setMax(self.maxValueEMG_0)
-                self.axis_y_emg_0.setMin(self.minValueEMG_0)
+                    self.maxEMG_1.append(self.ecgSample_1, value)
+                    self.rawData.append((self.ecgSample_1, value, 0, 0, 0, 0))
+                    self.axis_x_emg_1.setMax(self.ecgSample_1)
+                    self.ecgSample_1 += 1
+
+                    if value < self.minValueEMG_1:
+                        self.minValueEMG_1 = value
+                    if value > self.maxValueEMG_1:
+                        self.maxValueEMG_1 = value
+
+                    self.axis_y_emg_1.setMax(self.maxValueEMG_1)
+                    self.axis_y_emg_1.setMin(self.minValueEMG_1)
 
         elif cmd == 'B':
             for idx, value in enumerate(values):
@@ -390,8 +429,6 @@ class MyWindow(Ui_MainWindow):
         self.maxValueMMG_0    = 0
         self.saveBckpFile()
         
-
-
     def startMeasurement(self):
         if self.ser.isOpen() == True:
             self.saveBckpFile() 
@@ -399,10 +436,15 @@ class MyWindow(Ui_MainWindow):
             self.ser.flushInput()           
             self.serThreadRdy = True
             self.trainingTimer.start(1000)
-        
-
+        if self.serverConnected == True:
+            self.saveBckpFile()
+            self.serverThreadRdy = True
+            self.trainingTimer.start(1000)
+            
+    
     def stopMeasurement(self):
         self.serThreadRdy = False
+        self.serverThreadRdy = False
         self.trainingTimer.stop()
 
 
@@ -436,25 +478,44 @@ class MyWindow(Ui_MainWindow):
         print("[INFO] Serial thread started!")
         while True:
             if self.serThreadRdy == True:
-                values = []
+                FloatValues = []
+                IntValues   = []
+                rawData : bytearray
                 recData : bytearray
-                str: cmd
+                cmd : str
                 try:
-                    recData = self.ser.read(67)
                     self.packets += 1
+                    recData = self.ser.read(101)
+                    emgData = recData[3:67]
+                    mmgData = recData[69:101]
+                    
+                    print(recData[2])
+
                     cmd = chr(recData[2])
-                    rawData = bytearray(recData[3:])
 
-                    if (cmd == 'E'):
-                        for x in range(len(rawData)//4):
-                            values.append(struct.unpack('f', rawData[((x)*4):(x)*4+4])[0])
+                    if cmd == 'E':
+                        rawData = emgData
+                    
+                    elif cmd == 'B':
+                        rawData == emgData[:32]
 
-                    elif cmd == 'M':
-                        for x in range(len(rawData)//2):
-                            values.append(struct.unpack('i', rawData[((x)*2):(x)*2+2])[0])
-                    print(values)
+                    else:
+                        rawData = bytearray(0)
+                        self.ser.flush()
+                        self.ser.flushInput()
+                        continue
+
+                    for x in range(len(rawData)//4):
+                            FloatValues.append(struct.unpack('f', rawData[((x)*4):(x)*4+4])[0])
+
+                    self.create_linechart(cmd, FloatValues)
+
+                    rawData = mmgData
+
+                    for x in range(len(rawData)//2):
+                        IntValues.append(struct.unpack('h', rawData[((x)*2):(x)*2+2])[0])
   
-                    self.create_linechart(cmd, values)
+                    self.create_linechart('M', IntValues)
 
                 except Exception as err:
                     print("corrupted data...")
@@ -539,6 +600,12 @@ class MyWindow(Ui_MainWindow):
             self.Graph1.setChart(self.chartDataBIOZ_0)
         elif self.comboBoxChart1.currentText() == "MAD0 MMG":
             self.Graph1.setChart(self.chartDataMMG_0)
+        elif self.comboBoxChart1.currentText() == "MAD1 EMG":
+            self.Graph1.setChart(self.chartDataBIOZ_1)
+        elif self.comboBoxChart1.currentText() == "MAD1 MMG":
+            self.Graph1.setChart(self.chartDataMMG_1)
+        elif self.comboBoxChart1.currentText() == "MAD1 BIOZ":
+            self.Graph1.setChart(self.chartDataBIOZ_1)
 
     def setChart2(self):
         if self.comboBoxChart2.currentText() == "MAD0 EMG":
@@ -547,6 +614,12 @@ class MyWindow(Ui_MainWindow):
             self.Graph2.setChart(self.chartDataBIOZ_0)
         elif self.comboBoxChart2.currentText() == "MAD0 MMG":
             self.Graph2.setChart(self.chartDataMMG_0)
+        elif self.comboBoxChart2.currentText() == "MAD1 EMG":
+            self.Graph2.setChart(self.chartDataEMG_1)
+        elif self.comboBoxChart2.currentText() == "MAD1 BIOZ":
+            self.Graph2.setChart(self.chartDataBIOZ_1)
+        elif self.comboBoxChart2.currentText() == "MAD1 MMG":
+            self.Graph2.setChart(self.chartDataMMG_1)
 
     def setChart3(self):
         if self.comboBoxChart3.currentText() == "MAD0 EMG":
@@ -555,6 +628,12 @@ class MyWindow(Ui_MainWindow):
             self.Graph3.setChart(self.chartDataBIOZ_0)
         elif self.comboBoxChart3.currentText() == "MAD0 MMG":
             self.Graph3.setChart(self.chartDataMMG_0)
+        elif self.comboBoxChart3.currentText() == "MAD1 EMG":
+            self.Graph3.setChart(self.chartDataEMG_1)
+        elif self.comboBoxChart3.currentText() == "MAD1 BIOZ":
+            self.Graph3.setChart(self.chartDataBIOZ_1)
+        elif self.comboBoxChart3.currentText() == "MAD1 MMG":
+            self.Graph3.setChart(self.chartDataMMG_1)
 
     def timerCountTick(self):
         self.trainingCounter += 1
@@ -580,6 +659,125 @@ class MyWindow(Ui_MainWindow):
         pulse = 60 / (peaks_corr[0] * 1/fs)
 
         self.labelHR.setText("{:.2f} bpm" .format(pulse))
+
+    def MsgRecv0(self):
+        while True:
+            if self.serverThreadRdy == True:
+                FloatValues = []
+                IntValues   = []
+                rawData : bytearray
+                recData : bytearray
+                cmd : str
+                try:
+                    self.packets += 1
+                    recData = bytearray(self.s0.recv(101))
+                    emgData = recData[3:67]
+                    mmgData = recData[69:101]
+
+                    cmd = chr(recData[2])
+
+                    if cmd == 'E':
+                        rawData = emgData
+                    
+                    elif cmd == 'B':
+                        rawData == emgData[:32]
+
+                    else:
+                        rawData = bytearray(0)
+                        continue
+
+                    for x in range(len(rawData)//4):
+                            FloatValues.append(struct.unpack('f', rawData[((x)*4):(x)*4+4])[0])
+
+                    self.create_linechart(cmd, FloatValues)
+
+                    rawData = mmgData
+
+                    for x in range(len(rawData)//2):
+                        IntValues.append(struct.unpack('h', rawData[((x)*2):(x)*2+2])[0])
+  
+                    self.create_linechart('M', IntValues, mad=0)
+
+                except Exception as err:
+                    print("corrupted data...")
+                    print(err)
+                    self.corruptedData += 1
+                    winsound.Beep(duration=SOUND_DURATION, frequency=SOUND_FREQ)
+
+    def MsgRecv1(self):
+        while True:
+            if self.serverThreadRdy == True:
+                FloatValues = []
+                IntValues   = []
+                rawData : bytearray
+                recData : bytearray
+                cmd : str
+                try:
+                    self.packets += 1
+                    recData = bytearray(self.s1.recv(101))
+                    emgData = recData[3:67]
+                    mmgData = recData[69:101]
+
+                    cmd = chr(recData[2])
+
+                    if cmd == 'E':
+                        rawData = emgData
+                    
+                    elif cmd == 'B':
+                        rawData == emgData[:32]
+
+                    else:
+                        rawData = bytearray(0)
+                        continue
+
+                    for x in range(len(rawData)//4):
+                            FloatValues.append(struct.unpack('f', rawData[((x)*4):(x)*4+4])[0])
+
+                    self.create_linechart(cmd, FloatValues, mad=1)
+
+                    rawData = mmgData
+
+                    for x in range(len(rawData)//2):
+                        IntValues.append(struct.unpack('h', rawData[((x)*2):(x)*2+2])[0])
+  
+                    self.create_linechart('M', IntValues, mad=1)
+
+                except Exception as err:
+                    print("corrupted data...")
+                    print(err)
+                    self.corruptedData += 1
+                    winsound.Beep(duration=SOUND_DURATION, frequency=SOUND_FREQ)
+
+    def MsgSend(self,msg_send):
+        msg_header = f'{len(msg_send):<{HEADER_SIZE}}'
+        self.s.send(msg_header.encode('utf-8') + msg_send.encode('utf-8'))
+        print("wysłane")
+
+    def openPort(self):
+        if self.comboBoxPorts.currentText() != None:
+            if (self.comboBoxPorts.currentText() == 'Base Station'):
+                try:
+                    self.s0 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.s0.connect((HOST_IP, HOST_PORT_0))
+                    self.s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    self.s1.connect((HOST_IP, HOST_PORT_1))
+                    self.serverConnected = True
+
+                    self.serverThread0.start()
+                    self.serverThread1.start()
+                
+                    print("Server connection established!")
+                    return
+                except:
+                    print("Server connection failed")
+                    return
+            self.ser.port = self.comboBoxPorts.currentText().split(" ")[0]
+            print(self.comboBoxPorts.currentText().split(" ")[0])
+            try:
+                self.ser.open()
+                self.serialThread.start()
+            except:
+                print("[ERROR] Can't open serial port...")
 
 
 if __name__ == "__main__":
