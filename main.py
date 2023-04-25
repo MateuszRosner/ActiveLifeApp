@@ -17,7 +17,6 @@ from PyQt5.QtCore import Qt
 
 from scipy.signal import find_peaks
 from scipy import integrate
-#import pywt
 
 import socket
 import threading
@@ -79,8 +78,10 @@ class MyWindow(Ui_MainWindow):
         self.minValueBIOZ_1   = 0.0
         self.minValueMMG_1    = 0.0
         self.maxValueMMG_1    = 0.0
+        
         self.rawData = []
-        self.rawData.append(("ecg smp0", "ecg val0", "bioz smp0", "bioz val0", "mmg smp0", "mmg val0", "ecg smp1", "ecg val1", "bioz smp1", "bioz val1", "mmg smp1", "mmg val1"))
+        self.rawData.append(("emg smp0", "emg val0", "bioz smp0", "bioz val0", "mmg smp0", "mmg val0", "emg smp1", "emg val1", "bioz smp1", "bioz val1", "mmg smp1", "mmg val1"))
+        
         self.ecgSample_0    = 0
         self.biozSample_0   = 0
         self.mmgSample_0    = 0
@@ -268,7 +269,6 @@ class MyWindow(Ui_MainWindow):
             print(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'))
         
 
-
     def create_linechart(self, cmd, values, mad=0):
         if cmd == 'E':
             for idx, value in enumerate(values):
@@ -388,12 +388,12 @@ class MyWindow(Ui_MainWindow):
                 value = float(value)
                 if idx > 0:
                     if mad == 0:
-                        self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0))
+                        self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value, 0, 0, 0, 0, 0, 0))
                         self.mmgSample_0 += 1
                         self.bpmSamples.append(value)
                         continue
                     elif mad == 1:
-                        self.rawData.append((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.mmgSample_1, value))
+                        self.rawData.append((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.mmgSample_1, value))
                         self.mmgSample_1 += 1
                         self.bpmSamples.append(value)
                         continue
@@ -408,7 +408,7 @@ class MyWindow(Ui_MainWindow):
 
                     self.maxMMG_0.append(self.mmgSample_0, value)
                     self.bpmSamples.append(value)
-                    self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0))
+                    self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value, 0, 0, 0, 0, 0, 0))
                     self.axis_x_mmg_0.setMax(self.mmgSample_0)
                     self.mmgSample_0 += 1
 
@@ -430,7 +430,7 @@ class MyWindow(Ui_MainWindow):
 
                     self.maxMMG_1.append(self.mmgSample_1, value)
                     self.bpmSamples.append(value)
-                    self.rawData.append((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.mmgSample_1, value))
+                    self.rawData.append((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.mmgSample_1, value))
                     self.axis_x_mmg_1.setMax(self.mmgSample_1)
                     self.mmgSample_1 += 1
 
@@ -451,7 +451,7 @@ class MyWindow(Ui_MainWindow):
         self.maxBIOZ_1.clear()
         self.maxMMG_1.clear()
         self.rawData.clear()
-        self.rawData.append(("ecg smp0", "ecg val0", "bioz smp0", "bioz val0", "mmg smp0", "mmg val0", "ecg smp1", "ecg val1", "bioz smp1", "bioz val1", "mmg smp1", "mmg val1"))
+        self.rawData.append(("emg smp0", "emg val0", "bioz smp0", "bioz val0", "mmg smp0", "mmg val0", "emg smp1", "emg val1", "bioz smp1", "bioz val1", "mmg smp1", "mmg val1"))
         self.minValueEMG_0    = 0
         self.maxValueEMG_0    = 0
         self.minValueBIOZ_0   = 0
@@ -471,30 +471,52 @@ class MyWindow(Ui_MainWindow):
         self.ecgSample_1      = 0
         self.biozSample_1     = 0
         self.mmgSample_1      = 0
+        
         self.trainingCounter  = 0
         self.labelTrainingTime.setText(f"{self.trainingCounter} s")
 
     def clearGraphEMG(self, mad):
-        self.maxEMG_0.clear()
-        self.axis_x_emg_0.setMin(self.ecgSample_0)
-        self.minValueEMG_0    = 0
-        self.maxValueEMG_0    = 0
+        if mad == 0:
+            self.maxEMG_0.clear()
+            self.axis_x_emg_0.setMin(self.ecgSample_0)
+            self.minValueEMG_0    = 0
+            self.maxValueEMG_0    = 0
+        elif mad == 1:
+            self.maxEMG_1.clear()
+            self.axis_x_emg_1.setMin(self.ecgSample_1)
+            self.minValueEMG_1    = 0
+            self.maxValueEMG_1    = 0
+        
         self.saveBckpFile()
 
 
     def clearGraphBIOZ(self, mad):
-        self.maxBIOZ_0.clear()
-        self.axis_x_bioz_0.setMin(self.biozSample_0)
-        self.maxValueBIOZ_0   = 0
+        if mad == 0:
+            self.maxBIOZ_0.clear()
+            self.axis_x_bioz_0.setMin(self.biozSample_0)
+            self.maxValueBIOZ_0   = 0
+        elif mad == 1:
+            self.maxBIOZ_1.clear()
+            self.axis_x_bioz_1.setMin(self.biozSample_1)
+            self.maxValueBIOZ_1   = 0
+
         self.saveBckpFile()
 
 
     def clearGraphMMG(self, mad):
-        self.calcBPM()
-        self.maxMMG_0.clear()
-        self.bpmSamples.clear()
-        self.axis_x_mmg_0.setMin(self.mmgSample_0)
-        self.maxValueMMG_0    = 0
+        if mad == 0:
+            self.calcBPM()
+            self.maxMMG_0.clear()
+            self.bpmSamples.clear()
+            self.axis_x_mmg_0.setMin(self.mmgSample_0)
+            self.maxValueMMG_0    = 0
+        elif mad == 1:
+            self.calcBPM()
+            self.maxMMG_1.clear()
+            self.bpmSamples.clear()
+            self.axis_x_mmg_1.setMin(self.mmgSample_1)
+            self.maxValueMMG_1    = 0
+        
         self.saveBckpFile()
         
     def startMeasurement(self):
