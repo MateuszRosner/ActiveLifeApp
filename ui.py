@@ -156,7 +156,7 @@ class Ui_MainWindow(object):
         self.groupBox.setTitle(_translate("MainWindow", "Wykresy"))
         self.labelDevice_6.setText(_translate("MainWindow", "Wykres 1"))
         self.labelDevice_7.setText(_translate("MainWindow", "Wykres 2"))
-        self.labelDevice_8.setText(_translate("MainWindow", "Wykres 1"))
+        self.labelDevice_8.setText(_translate("MainWindow", "Wykres 3"))
         self.labelDevice_4.setText(_translate("MainWindow", "Puls:"))
         self.labelHR.setText(_translate("MainWindow", "0"))
         self.labelDevice_9.setText(_translate("MainWindow", "Szerokość okna:"))

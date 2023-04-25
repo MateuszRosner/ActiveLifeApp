@@ -23,10 +23,10 @@ import socket
 import threading
 import sys
 
-HOST_NAME = socket.gethostname()
-HOST_IP         = '192.168.1.36'
-HOST_PORT_0     = 1025
-HOST_PORT_1     = 1026
+#HOST_IP         = 'raspberrypi.local'
+HOST_IP         = '192.168.8.158'
+HOST_PORT_0     = 6500
+HOST_PORT_1     = 6800
 HEADER_SIZE     = 8
 
 
@@ -80,7 +80,7 @@ class MyWindow(Ui_MainWindow):
         self.minValueMMG_1    = 0.0
         self.maxValueMMG_1    = 0.0
         self.rawData = []
-        self.rawData.append(("ecg smp", "ecg val", "bioz smp", "bioz val", "mmg smp", "mmg val"))
+        self.rawData.append(("ecg smp0", "ecg val0", "bioz smp0", "bioz val0", "mmg smp0", "mmg val0", "ecg smp1", "ecg val1", "bioz smp1", "bioz val1", "mmg smp1", "mmg val1"))
         self.ecgSample_0    = 0
         self.biozSample_0   = 0
         self.mmgSample_0    = 0
@@ -275,11 +275,11 @@ class MyWindow(Ui_MainWindow):
                 value = float(value)
                 if idx > 0:
                     if mad == 0:
-                        self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0))
+                        self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
                         self.ecgSample_0 += 1
                         continue
                     elif mad == 1:
-                        self.rawData.append((self.ecgSample_1, value, 0, 0, 0, 0))
+                        self.rawData.append((0, 0, 0, 0, 0, 0, self.ecgSample_1, value, 0, 0, 0, 0))
                         self.ecgSample_1 += 1
                         continue
                 if mad == 0: 
@@ -290,10 +290,10 @@ class MyWindow(Ui_MainWindow):
                         self.maxValueEMG_0 = value
 
                     elif self.maxEMG_0.count() == CHART_MAX_SAMPLES:
-                        self.clearGraphEMG()
+                        self.clearGraphEMG(0)
 
                     self.maxEMG_0.append(self.ecgSample_0, value)
-                    self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0))
+                    self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
                     self.axis_x_emg_0.setMax(self.ecgSample_0)
                     self.ecgSample_0 += 1
 
@@ -312,10 +312,10 @@ class MyWindow(Ui_MainWindow):
                         self.maxValueEMG_1 = value
 
                     elif self.maxEMG_1.count() == CHART_MAX_SAMPLES:
-                        self.clearGraphEMG()
+                        self.clearGraphEMG(1)
 
                     self.maxEMG_1.append(self.ecgSample_1, value)
-                    self.rawData.append((self.ecgSample_1, value, 0, 0, 0, 0))
+                    self.rawData.append((0, 0, 0, 0, 0, 0, self.ecgSample_1, value, 0, 0, 0, 0))
                     self.axis_x_emg_1.setMax(self.ecgSample_1)
                     self.ecgSample_1 += 1
 
@@ -331,69 +331,127 @@ class MyWindow(Ui_MainWindow):
             for idx, value in enumerate(values):
                 value = float(value)
                 if idx > 0:
-                    self.rawData.append((0, 0, self.biozSample_0, value, 0, 0))
+                    if mad == 0:
+                        self.rawData.append((0, 0, self.biozSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0))
+                        self.biozSample_0 += 1
+                        continue
+                    elif mad == 1:
+                        self.rawData.append((0, 0, 0, 0, 0, 0, 0, 0, self.biozSample_1, value, 0, 0))
+                        self.biozSample_1 += 1
+                        continue
+                if mad == 0: 
+                    if self.maxBIOZ_0.count() == 0:
+                        self.axis_x_bioz_0.setMin(self.biozSample_0)
+                        self.minValueBIOZ_0 = value
+                        self.maxValueBIOZ_0 = value
+
+                    elif self.maxBIOZ_0.count() == CHART_MAX_SAMPLES:
+                        self.clearGraphBIOZ(0)
+
+                    self.maxBIOZ_0.append(self.biozSample_0, value)
+                    self.rawData.append((0, 0, self.biozSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0))
+                    self.axis_x_bioz_0.setMax(self.biozSample_0)
                     self.biozSample_0 += 1
-                    continue
 
-                if self.maxBIOZ_0.count() == 0:
-                    self.axis_x_bioz_0.setMin(self.biozSample_0)
-                    self.minValueBIOZ_0 = value
-                    self.maxValueBIOZ_0 = value
+                    if value < self.minValueBIOZ_0:
+                        self.minValueBIOZ_0 = value
+                    if value > self.maxValueBIOZ_0:
+                        self.maxValueBIOZ_0 = value
 
-                elif self.maxBIOZ_0.count() == CHART_MAX_SAMPLES:
-                    self.clearGraphBIOZ()
+                    self.axis_y_bioz_0.setMax(self.maxValueBIOZ_0)
+                    self.axis_y_bioz_0.setMin(self.minValueBIOZ_0)
+                
+                elif mad == 1:
+                    if self.maxBIOZ_1.count() == 0:
+                        self.axis_x_bioz_1.setMin(self.biozSample_1)
+                        self.minValueBIOZ_1 = value
+                        self.maxValueBIOZ_1 = value
 
-                self.maxBIOZ_0.append(self.biozSample_0, value)
-                self.rawData.append((0, 0, self.biozSample_0, value, 0, 0))
-                self.axis_x_bioz_0.setMax(self.biozSample_0)
-                self.biozSample_0 += 1
+                    elif self.maxBIOZ_1.count() == CHART_MAX_SAMPLES:
+                        self.clearGraphBIOZ(1)
 
-                if value < self.minValueBIOZ_0:
-                    self.minValueBIOZ_0 = value
-                if value > self.maxValueBIOZ_0:
-                    self.maxValueBIOZ_0 = value
+                    self.maxBIOZ_1.append(self.biozSample_1, value)
+                    self.rawData.append((0, 0, 0, 0, 0, 0, 0, 0, self.biozSample_1, value, 0, 0))
+                    self.axis_x_bioz_1.setMax(self.biozSample_1)
+                    self.biozSample_1 += 1
 
-                self.axis_y_bioz_0.setMax(self.maxValueBIOZ_0)
-                self.axis_y_bioz_0.setMin(self.minValueBIOZ_0)
+                    if value < self.minValueBIOZ_1:
+                        self.minValueBIOZ_1 = value
+                    if value > self.maxValueBIOZ_1:
+                        self.maxValueBIOZ_1 = value
+
+                    self.axis_y_bioz_1.setMax(self.maxValueBIOZ_1)
+                    self.axis_y_bioz_1.setMin(self.minValueBIOZ_1)
 
         elif cmd == 'M':
             for idx, value in enumerate(values):
                 value = float(value)
                 if idx > 0:
-                    self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value))
-                    self.mmgSample_0 += 1
+                    if mad == 0:
+                        self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0))
+                        self.mmgSample_0 += 1
+                        self.bpmSamples.append(value)
+                        continue
+                    elif mad == 1:
+                        self.rawData.append((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.mmgSample_1, value))
+                        self.mmgSample_1 += 1
+                        self.bpmSamples.append(value)
+                        continue
+                if mad == 0:
+                    if self.maxMMG_0.count() == 0:
+                        self.axis_x_mmg_0.setMin(self.mmgSample_0)
+                        self.minValueMMG_0 = value
+                        self.maxValueMMG_0 = value
+
+                    elif self.maxMMG_0.count() == CHART_MAX_SAMPLES:
+                        self.clearGraphMMG(0)
+
+                    self.maxMMG_0.append(self.mmgSample_0, value)
                     self.bpmSamples.append(value)
-                    continue
-                
-                if self.maxMMG_0.count() == 0:
-                    self.axis_x_mmg_0.setMin(self.mmgSample_0)
-                    self.minValueMMG_0 = value
-                    self.maxValueMMG_0 = value
+                    self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0))
+                    self.axis_x_mmg_0.setMax(self.mmgSample_0)
+                    self.mmgSample_0 += 1
 
-                elif self.maxMMG_0.count() == CHART_MAX_SAMPLES:
-                    self.clearGraphMMG()
+                    if value < self.minValueMMG_0:
+                        self.minValueMMG_0 = value
+                    if value > self.maxValueMMG_0:
+                        self.maxValueMMG_0 = value
 
-                self.maxMMG_0.append(self.mmgSample_0, value)
-                self.bpmSamples.append(value)
-                self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value))
-                self.axis_x_mmg_0.setMax(self.mmgSample_0)
-                self.mmgSample_0 += 1
+                    self.axis_y_mmg_0.setMax(self.maxValueMMG_0)
+                    self.axis_y_mmg_0.setMin(self.minValueMMG_0)
+                elif mad == 1:
+                    if self.maxMMG_1.count() == 0:
+                        self.axis_x_mmg_1.setMin(self.mmgSample_1)
+                        self.minValueMMG_1 = value
+                        self.maxValueMMG_1 = value
 
-                if value < self.minValueMMG_0:
-                    self.minValueMMG_0 = value
-                if value > self.maxValueMMG_0:
-                    self.maxValueMMG_0 = value
+                    elif self.maxMMG_1.count() == CHART_MAX_SAMPLES:
+                        self.clearGraphMMG(1)
 
-                self.axis_y_mmg_0.setMax(self.maxValueMMG_0)
-                self.axis_y_mmg_0.setMin(self.minValueMMG_0)
+                    self.maxMMG_1.append(self.mmgSample_1, value)
+                    self.bpmSamples.append(value)
+                    self.rawData.append((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, self.mmgSample_1, value))
+                    self.axis_x_mmg_1.setMax(self.mmgSample_1)
+                    self.mmgSample_1 += 1
+
+                    if value < self.minValueMMG_1:
+                        self.minValueMMG_1 = value
+                    if value > self.maxValueMMG_1:
+                        self.maxValueMMG_1 = value
+
+                    self.axis_y_mmg_1.setMax(self.maxValueMMG_1)
+                    self.axis_y_mmg_1.setMin(self.minValueMMG_1)
 
 
     def clearGraph(self):
         self.maxEMG_0.clear()
         self.maxBIOZ_0.clear()
         self.maxMMG_0.clear()
+        self.maxEMG_1.clear()
+        self.maxBIOZ_1.clear()
+        self.maxMMG_1.clear()
         self.rawData.clear()
-        self.rawData.append(("emg smp", "emg val", "bioz smp", "bioz val", "mmg smp", "mmg val"))
+        self.rawData.append(("ecg smp0", "ecg val0", "bioz smp0", "bioz val0", "mmg smp0", "mmg val0", "ecg smp1", "ecg val1", "bioz smp1", "bioz val1", "mmg smp1", "mmg val1"))
         self.minValueEMG_0    = 0
         self.maxValueEMG_0    = 0
         self.minValueBIOZ_0   = 0
@@ -403,25 +461,35 @@ class MyWindow(Ui_MainWindow):
         self.ecgSample_0      = 0
         self.biozSample_0     = 0
         self.mmgSample_0      = 0
+
+        self.minValueEMG_1    = 0
+        self.maxValueEMG_1    = 0
+        self.minValueBIOZ_1   = 0
+        self.maxValueBIOZ_1   = 0
+        self.minValueMMG_1    = 0
+        self.maxValueMMG_1    = 0
+        self.ecgSample_1      = 0
+        self.biozSample_1     = 0
+        self.mmgSample_1      = 0
         self.trainingCounter  = 0
         self.labelTrainingTime.setText(f"{self.trainingCounter} s")
 
-    def clearGraphEMG(self):
+    def clearGraphEMG(self, mad):
         self.maxEMG_0.clear()
         self.axis_x_emg_0.setMin(self.ecgSample_0)
-        #self.minValueEMG_0    = 0
+        self.minValueEMG_0    = 0
         self.maxValueEMG_0    = 0
         self.saveBckpFile()
 
 
-    def clearGraphBIOZ(self):
+    def clearGraphBIOZ(self, mad):
         self.maxBIOZ_0.clear()
         self.axis_x_bioz_0.setMin(self.biozSample_0)
         self.maxValueBIOZ_0   = 0
         self.saveBckpFile()
 
 
-    def clearGraphMMG(self):
+    def clearGraphMMG(self, mad):
         self.calcBPM()
         self.maxMMG_0.clear()
         self.bpmSamples.clear()
