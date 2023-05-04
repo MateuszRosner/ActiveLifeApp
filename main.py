@@ -275,7 +275,7 @@ class MyWindow(Ui_MainWindow):
         if cmd == 'E':
             for idx, value in enumerate(values):
                 value = float(value)
-                if (value > 10) or (value < -10):
+                if (value > 2) or (value < -2):
                     continue
                 
                 if idx > 0:
@@ -334,7 +334,7 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'B':
             for idx, value in enumerate(values):
                 value = float(value)
-                if (value > 250) or (value < 0) or (value == np.nan) or (value == np.inf):
+                if (value > 105) or (value < 0) or (value == np.nan) or (value == np.inf):
                     continue
 
                 if idx > 0:
@@ -393,7 +393,7 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'M':
             for idx, value in enumerate(values):
                 value = float(value)
-                if (value > 32000) or (value < -32000):
+                if (value > 3000) or (value < -3000):
                     continue
 
                 if idx > 0:
@@ -826,7 +826,7 @@ class MyWindow(Ui_MainWindow):
                         rawData = emgData
                     
                     elif cmd == 'B':
-                        rawData == emgData[:32]
+                        rawData = emgData[:32]
 
                     else:
                         rawData = bytearray(0)
