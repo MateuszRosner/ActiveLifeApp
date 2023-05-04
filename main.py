@@ -23,7 +23,7 @@ import threading
 import sys
 
 #HOST_IP         = 'raspberrypi.local'
-HOST_IP         = '192.168.8.158'
+HOST_IP         = '192.168.8.161'
 HOST_PORT_0     = 6500
 HOST_PORT_1     = 6800
 HEADER_SIZE     = 8
@@ -264,7 +264,9 @@ class MyWindow(Ui_MainWindow):
 
 
     def setActualSettings(self):
-        if self.ser.isOpen():
+        if self.serverConnected == True:
+            self.MsgSend(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'), self.comboBoxDevice.currentText())
+        elif self.ser.isOpen():
             self.ser.write(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'))
             print(f"#M:{self.max30001.measurement_type.name}".encode('utf-8'))
         
@@ -273,6 +275,9 @@ class MyWindow(Ui_MainWindow):
         if cmd == 'E':
             for idx, value in enumerate(values):
                 value = float(value)
+                if (value > 10) or (value < -10):
+                    continue
+                
                 if idx > 0:
                     if mad == 0:
                         self.rawData.append((self.ecgSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
@@ -283,7 +288,6 @@ class MyWindow(Ui_MainWindow):
                         self.ecgSample_1 += 1
                         continue
                 if mad == 0: 
-
                     if self.maxEMG_0.count() == 0:
                         self.axis_x_emg_0.setMin(self.ecgSample_0)
                         self.minValueEMG_0 = value
@@ -330,6 +334,9 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'B':
             for idx, value in enumerate(values):
                 value = float(value)
+                if (value > 250) or (value < 0) or (value == np.nan) or (value == np.inf):
+                    continue
+
                 if idx > 0:
                     if mad == 0:
                         self.rawData.append((0, 0, self.biozSample_0, value, 0, 0, 0, 0, 0, 0, 0, 0))
@@ -386,6 +393,9 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'M':
             for idx, value in enumerate(values):
                 value = float(value)
+                if (value > 32000) or (value < -32000):
+                    continue
+
                 if idx > 0:
                     if mad == 0:
                         self.rawData.append((0, 0, 0, 0, self.mmgSample_0, value, 0, 0, 0, 0, 0, 0))
@@ -765,19 +775,21 @@ class MyWindow(Ui_MainWindow):
                     mmgData = recData[69:101]
 
                     cmd = chr(recData[2])
-
                     if cmd == 'E':
                         rawData = emgData
                     
                     elif cmd == 'B':
-                        rawData == emgData[:32]
+                        rawData = emgData[:32]
 
                     else:
                         rawData = bytearray(0)
                         continue
 
                     for x in range(len(rawData)//4):
-                            FloatValues.append(struct.unpack('f', rawData[((x)*4):(x)*4+4])[0])
+                            try:
+                                FloatValues.append(struct.unpack('f', rawData[((x)*4):(x)*4+4])[0])
+                            except:
+                                print("[INFO] Value data corrupted...")
 
                     self.create_linechart(cmd, FloatValues, mad=0)
 
@@ -840,12 +852,12 @@ class MyWindow(Ui_MainWindow):
 
     def MsgSend(self,msg_send, mad):
         msg_header = f'{len(msg_send):<{HEADER_SIZE}}'
-        if mad == 0:
-            self.s0.send(msg_header.encode('utf-8') + msg_send.encode('utf-8'))
-        elif mad == 1:
-            self.s1.send(msg_header.encode('utf-8') + msg_send.encode('utf-8'))
+        if mad == "MAD0":
+            self.s0.send(msg_header.encode('utf-8') + msg_send)
+        elif mad == "MAD1":
+            self.s1.send(msg_header.encode('utf-8') + msg_send)
         
-        print(f"Config sent to MAD{mad}")
+        print(f"Config sent to {mad}")
 
     def openPort(self):
         if self.comboBoxPorts.currentText() != None:
