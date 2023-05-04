@@ -701,7 +701,7 @@ class MyWindow(Ui_MainWindow):
         elif self.comboBoxChart1.currentText() == "MAD0 MMG":
             self.Graph1.setChart(self.chartDataMMG_0)
         elif self.comboBoxChart1.currentText() == "MAD1 EMG":
-            self.Graph1.setChart(self.chartDataBIOZ_1)
+            self.Graph1.setChart(self.chartDataEMG_1)
         elif self.comboBoxChart1.currentText() == "MAD1 MMG":
             self.Graph1.setChart(self.chartDataMMG_1)
         elif self.comboBoxChart1.currentText() == "MAD1 BIOZ":
