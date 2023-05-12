@@ -597,7 +597,7 @@ class MyWindow(Ui_MainWindow):
                         rawData = emgData
                     
                     elif cmd == 'B':
-                        rawData == emgData[:32]
+                        rawData = emgData[:32]
 
                     else:
                         rawData = bytearray(0)
