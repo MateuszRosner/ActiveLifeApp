@@ -23,7 +23,7 @@ import threading
 import sys
 
 #HOST_IP         = 'raspberrypi.local'
-HOST_IP         = '192.168.8.161'
+HOST_IP         = '192.168.8.147'
 HOST_PORT_0     = 6500
 HOST_PORT_1     = 6800
 HEADER_SIZE     = 8
@@ -334,7 +334,7 @@ class MyWindow(Ui_MainWindow):
         elif cmd == 'B':
             for idx, value in enumerate(values):
                 value = float(value)
-                if (value > 105) or (value < 0) or (value == np.nan) or (value == np.inf):
+                if (value > 105) or (value < -100) or (value == np.nan) or (value == np.inf):
                     continue
 
                 if idx > 0:
@@ -497,7 +497,7 @@ class MyWindow(Ui_MainWindow):
             self.minValueEMG_1    = 0
             self.maxValueEMG_1    = 0
         
-        self.saveBckpFile()
+        #self.saveBckpFile()
 
 
     def clearGraphBIOZ(self, mad):
@@ -510,24 +510,24 @@ class MyWindow(Ui_MainWindow):
             self.axis_x_bioz_1.setMin(self.biozSample_1)
             self.maxValueBIOZ_1   = 0
 
-        self.saveBckpFile()
+        #self.saveBckpFile()
 
 
     def clearGraphMMG(self, mad):
         if mad == 0:
-            self.calcBPM()
+            #self.calcBPM()
             self.maxMMG_0.clear()
             self.bpmSamples.clear()
             self.axis_x_mmg_0.setMin(self.mmgSample_0)
             self.maxValueMMG_0    = 0
         elif mad == 1:
-            self.calcBPM()
+            #self.calcBPM()
             self.maxMMG_1.clear()
             self.bpmSamples.clear()
             self.axis_x_mmg_1.setMin(self.mmgSample_1)
             self.maxValueMMG_1    = 0
         
-        self.saveBckpFile()
+        #self.saveBckpFile()
         
     def startMeasurement(self):
         if self.ser.isOpen() == True:
@@ -589,7 +589,7 @@ class MyWindow(Ui_MainWindow):
                     emgData = recData[3:67]
                     mmgData = recData[69:101]
                     
-                    print(recData[2])
+                    #print(recData[2])
 
                     cmd = chr(recData[2])
 
@@ -738,6 +738,8 @@ class MyWindow(Ui_MainWindow):
     def timerCountTick(self):
         self.trainingCounter += 1
         self.labelTrainingTime.setText(f"{self.trainingCounter} s")
+        if self.trainingCounter % 10 == 0:
+            self.saveBckpFile()
 
     def calcBPM(self):
         fs = 150

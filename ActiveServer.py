@@ -6,12 +6,13 @@
 import socket
 import threading
 import sys
-import MadDataRead
+import time
+#import MadDataRead
 
 HOST_NAME = socket.gethostname()
-# HOST_IP = socket.gethostbyname(HOST_NAME)
-HOST_IP = '192.168.8.163'
-HOST_PORT = 1025
+HOST_IP = socket.gethostbyname(HOST_NAME)
+#HOST_IP = '192.168.8.163'
+HOST_PORT = 502
 HEADER_SIZE = 8
 
 def MsgRecv():
@@ -23,8 +24,7 @@ def MsgRecv():
     print(msg_recv)
 
 def MsgSend(msg_send):
-    msg_header = f'{len(msg_send):<{HEADER_SIZE}}'
-    conn.send(msg_header.encode('utf-8') + msg_send.encode('utf-8'))
+    conn.send("TEST".encode('utf-8'))
     print(msg_send)
 
 print(f'Hostname: {HOST_NAME}')
@@ -42,19 +42,20 @@ if __name__ == "__main__":
     i = 1
     while True:
         t1 = threading.Thread(target=MsgSend('proba nr: '+str(i)))
-        t2 = threading.Thread(target=MsgSend(MadDataRead.MadData(0)))
-        t3 = threading.Thread(target=MsgSend(MadDataRead.MadData(1)))
+        #t2 = threading.Thread(target=MsgSend(MadDataRead.MadData(0)))
+        #t3 = threading.Thread(target=MsgSend(MadDataRead.MadData(1)))
         # t4 = threading.Thread(target=MsgRecv())
  
         t1.start()
-        t2.start()
-        t3.start()
+        #t2.start()
+        #t3.start()
         # t4.start()
         
         t1.join()
-        t2.join()
-        t3.join()
+        #t2.join()
+        #t3.join()
         # t4.join()
         
         i += 1
+        time.sleep(3)
 
